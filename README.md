@@ -1,1 +1,6 @@
-서버 초기설정을 시작합니다.
+Installation
+npm install / yarn
+Running
+npm run dev / yarn dev
+Testing
+npm run test / yarn test
