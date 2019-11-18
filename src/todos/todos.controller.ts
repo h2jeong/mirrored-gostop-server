@@ -1,7 +1,8 @@
 import * as express from 'express';
 import Todo from './todo.interface';
+import Controller from '../interfaces/controller.interface';
 
-class TodosController {
+class TodosController implements Controller {
   public path = '/todos';
   public router = express.Router();
 
