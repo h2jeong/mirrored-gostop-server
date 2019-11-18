@@ -1,6 +1,10 @@
 import App from './app';
 import TodosController from './todos/todos.controller';
+import 'dotenv/config';
+import validateEnv from './utils/validateEnv';
 
-const app = new App([new TodosController()], 5000);
+validateEnv();
+
+const app = new App([new TodosController()]);
 
 app.listen();
