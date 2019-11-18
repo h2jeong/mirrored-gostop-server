@@ -15,7 +15,7 @@ class TodosController implements Controller {
   public initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
-    this.router.put(`${this.path}/:id`, this.modifyTodo);
+    this.router.patch(`${this.path}/:id`, this.modifyTodo);
     this.router.delete(`${this.path}/:id`, this.deleteTodo);
     this.router.post(this.path, this.createTodo);
   }
@@ -25,10 +25,18 @@ class TodosController implements Controller {
       res.send(todos);
     });
   };
-  private getTodoById = (req: express.Request, res: express.Response) => {
+  private getTodoById = (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
     const id = req.params.id;
     this.todo.findById(id).then(todo => {
-      res.send(todo);
+      if (todo) {
+        res.send(todo);
+      } else {
+        res.status(404).send({ error: 'Todo not found' });
+      }
     });
   };
   private createTodo = (req: express.Request, res: express.Response) => {

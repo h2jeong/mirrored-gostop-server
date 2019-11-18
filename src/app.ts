@@ -16,7 +16,6 @@ class App {
   private initializeMiddleware() {
     this.app.use(express.json());
   }
-
   private initializeControllers(controllers: Controller[]) {
     controllers.forEach(controller => {
       this.app.use('/', controller.router);
@@ -30,7 +29,7 @@ class App {
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-      }
+      },
     );
   }
 

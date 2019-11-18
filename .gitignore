@@ -58,3 +58,4 @@ coverage/
 # .zshrc .bashrc ?? need to check
 .bashrc
 .zshrc
+.vscode
