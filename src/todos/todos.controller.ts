@@ -1,28 +1,12 @@
 import * as express from 'express';
 import Todo from './todo.interface';
 import Controller from '../interfaces/controller.interface';
+import todoModel from './todos.model';
 
 class TodosController implements Controller {
   public path = '/todos';
   public router = express.Router();
-
-  private todos: Todo[] = [
-    {
-      user: 'Howl',
-      title: "Howl's Moving Castle",
-      description:
-        '일본 거장 애니메이터 미야자키 하야오가 감독한 지브리 스튜디오의 장편 애니메이션',
-      difficulty: 1,
-      dateStart: Date(),
-      dateEnd: Date(),
-      alarmActive: false,
-      alarm: '',
-      coin: 10,
-      point: 20,
-      health: 40,
-      completed: false,
-    },
-  ];
+  private todo = todoModel;
 
   constructor() {
     this.initializeRoutes();
@@ -30,17 +14,45 @@ class TodosController implements Controller {
 
   public initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
+    this.router.get(`${this.path}/:id`, this.getTodoById);
+    this.router.put(`${this.path}/:id`, this.modifyTodo);
+    this.router.delete(`${this.path}/:id`, this.deleteTodo);
     this.router.post(this.path, this.createTodo);
   }
 
-  getAllTodos = (req: express.Request, res: express.Response) => {
-    res.send(this.todos);
+  private getAllTodos = (req: express.Request, res: express.Response) => {
+    this.todo.find().then(todos => {
+      res.send(todos);
+    });
   };
-
-  createTodo = (req: express.Request, res: express.Response) => {
-    const todo: Todo = req.body;
-    this.todos.push(todo);
-    res.send(todo);
+  private getTodoById = (req: express.Request, res: express.Response) => {
+    const id = req.params.id;
+    this.todo.findById(id).then(todo => {
+      res.send(todo);
+    });
+  };
+  private createTodo = (req: express.Request, res: express.Response) => {
+    console.log('createTodo ::', req.body);
+    const todoData: Todo = req.body;
+    const createdTodo = new this.todo(todoData);
+    createdTodo.save().then(savedTodo => {
+      res.send(savedTodo);
+    });
+  };
+  private modifyTodo = (req: express.Request, res: express.Response) => {
+    console.log('modifyTodo ::', req.body);
+    const id = req.params.id;
+    const todoData: Todo = req.body;
+    this.todo
+      .findByIdAndUpdate(id, todoData, { new: true })
+      .then(todo => res.send(todo));
+  };
+  private deleteTodo = (req: express.Request, res: express.Response) => {
+    const id = req.params.id;
+    this.todo.findByIdAndDelete(id).then(success => {
+      if (success) res.send(200);
+      else res.send(404);
+    });
   };
 }
 
