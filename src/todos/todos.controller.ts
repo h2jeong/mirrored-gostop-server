@@ -5,6 +5,8 @@ import todoModel from './todos.model';
 import CreateTodoDto from './todo.dto';
 import NotFoundException from '../exceptions/NotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
+import authMiddleware from '../middleware/auth.middleware';
+import ReqWithUser from '../interfaces/reqWithUser.interface';
 
 class TodosController implements Controller {
   public path = '/todos';
@@ -18,17 +20,20 @@ class TodosController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
-    this.router.patch(
-      `${this.path}/:id`,
-      validationMiddleware(CreateTodoDto, true),
-      this.modifyTodo,
-    );
-    this.router.delete(`${this.path}/:id`, this.deleteTodo);
-    this.router.post(
-      this.path,
-      validationMiddleware(CreateTodoDto),
-      this.createTodo,
-    );
+    this.router
+      .all(`${this.path}/*`, authMiddleware)
+      .patch(
+        `${this.path}/:id`,
+        validationMiddleware(CreateTodoDto, true),
+        this.modifyTodo,
+      )
+      .delete(`${this.path}/:id`, this.deleteTodo)
+      .post(
+        this.path,
+        authMiddleware,
+        validationMiddleware(CreateTodoDto),
+        this.createTodo,
+      );
   }
 
   private getAllTodos = (req: express.Request, res: express.Response) => {
@@ -46,42 +51,41 @@ class TodosController implements Controller {
       if (todo) {
         res.send(todo);
       } else {
-        // res.status(404).send({ error: 'Todo not found' });
-        // next(new HttpException(404, 'Post not found'));
         next(new NotFoundException(id, this.path));
       }
     });
   };
-  private createTodo = (req: express.Request, res: express.Response) => {
+  private createTodo = async (req: ReqWithUser, res: express.Response) => {
     console.log('createTodo ::', req.body);
     const todoData: Todo = req.body;
-    const createdTodo = new this.todo(todoData);
-    createdTodo.save().then(savedTodo => {
-      res.send(savedTodo);
+    const createdTodo = new this.todo({
+      ...todoData,
+      veryfiedId: req.user._id,
     });
+    const savedTodo = await createdTodo.save();
+    res.send(savedTodo);
   };
-  private modifyTodo = (
-    req: express.Request,
+  private modifyTodo = async (
+    req: ReqWithUser,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     console.log('modifyTodo ::', req.body);
     const id = req.params.id;
     const todoData: Todo = req.body;
-    this.todo.findByIdAndUpdate(id, todoData, { new: true }).then(todo => {
-      if (todo) {
-        res.send(todo);
-      } else {
-        next(new NotFoundException(id, this.path));
-      }
-    });
+    const todo = await this.todo.findByIdAndUpdate(id, todoData, { new: true });
+    if (todo) {
+      res.send(todo);
+    } else {
+      next(new NotFoundException(id, this.path));
+    }
   };
-  private deleteTodo = (req: express.Request, res: express.Response) => {
+  private deleteTodo = async (req: ReqWithUser, res: express.Response) => {
     const id = req.params.id;
-    this.todo.findByIdAndDelete(id).then(success => {
-      if (success) res.send(200);
-      else new NotFoundException(id, this.path);
-    });
+    const successResponse = this.todo.findByIdAndDelete(id);
+
+    if (successResponse) res.send(200);
+    else new NotFoundException(id, this.path);
   };
 }
 

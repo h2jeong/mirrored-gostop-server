@@ -87,8 +87,6 @@ class AuthenticationController implements Controller {
     }
   };
 
-  private logOut = () => {};
-
   private createToken(user: User): TokenData {
     const expiresIn = 60 * 60;
     const secret = process.env.JWT_SECRET;
@@ -104,6 +102,11 @@ class AuthenticationController implements Controller {
   private createCookie(tokenData: TokenData) {
     return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
   }
+
+  private logOut = (req: express.Request, res: express.Response) => {
+    res.setHeader('Set-cookie', ['Authorization=;Max-age-0']);
+    res.send(200);
+  };
 }
 
 export default AuthenticationController;

@@ -2,7 +2,7 @@ import HttpException from './HttpException';
 
 class NoTokenException extends HttpException {
   constructor() {
-    super(406, 'No Token');
+    super(401, 'No Authentication Token');
   }
 }
 
