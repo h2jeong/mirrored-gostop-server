@@ -3,8 +3,8 @@ interface Todo {
   title: string;
   description: string;
   difficulty: number;
-  dateStart: string;
-  dateEnd: string;
+  dateStart: Date;
+  dateEnd: Date;
   alarmActive: boolean;
   alarm: string;
   coin: number;

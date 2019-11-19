@@ -2,7 +2,9 @@ import * as express from 'express';
 import Todo from './todo.interface';
 import Controller from '../interfaces/controller.interface';
 import todoModel from './todos.model';
+import CreateTodoDto from './todo.dto';
 import NotFoundException from '../exceptions/NotFoundException';
+import validationMiddleware from '../middleware/validation.middleware';
 
 class TodosController implements Controller {
   public path = '/todos';
@@ -16,9 +18,17 @@ class TodosController implements Controller {
   public initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
-    this.router.patch(`${this.path}/:id`, this.modifyTodo);
+    this.router.patch(
+      `${this.path}/:id`,
+      validationMiddleware(CreateTodoDto, true),
+      this.modifyTodo,
+    );
     this.router.delete(`${this.path}/:id`, this.deleteTodo);
-    this.router.post(this.path, this.createTodo);
+    this.router.post(
+      this.path,
+      validationMiddleware(CreateTodoDto),
+      this.createTodo,
+    );
   }
 
   private getAllTodos = (req: express.Request, res: express.Response) => {
