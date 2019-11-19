@@ -55,7 +55,7 @@ class TodosController implements Controller {
   };
   private createTodo = async (req: ReqWithUser, res: express.Response) => {
     console.log('createTodo ::', req.body);
-    const todoData: Todo = req.body;
+    const todoData: CreateTodoDto = req.body;
     const createdTodo = new this.todo({
       ...todoData,
       verifiedId: req.user._id,
@@ -70,7 +70,7 @@ class TodosController implements Controller {
   ) => {
     console.log('modifyTodo ::', req.body);
     const id = req.params.id;
-    const todoData: CreateTodoDto = req.body;
+    const todoData: Todo = req.body;
     const todo = await this.todo.findByIdAndUpdate(id, todoData, { new: true });
     if (todo) {
       res.send(todo);
