@@ -60,7 +60,7 @@ class TodosController implements Controller {
     const todoData: Todo = req.body;
     const createdTodo = new this.todo({
       ...todoData,
-      veryfiedId: req.user._id,
+      verifiedId: req.user._id,
     });
     const savedTodo = await createdTodo.save();
     res.send(savedTodo);

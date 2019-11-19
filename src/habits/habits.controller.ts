@@ -5,6 +5,8 @@ import habitModel from './habits.model';
 import validationMiddleware from '../middleware/validation.middleware';
 import CreateHabitDto from './habit.dto';
 import NotFoundException from '../exceptions/NotFoundException';
+import authMiddleware from '../middleware/auth.middleware';
+import ReqWithUser from '../interfaces/reqWithUser.interface';
 
 class HabitsController implements Controller {
   public path = '/habits';
@@ -18,62 +20,72 @@ class HabitsController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllHabits);
     this.router.get(`${this.path}/:id`, this.getHabitById);
-    this.router.patch(
-      `${this.path}/:id`,
-      validationMiddleware(CreateHabitDto, true),
-      this.modifyHabit,
-    );
-    this.router.delete(`${this.path}/:id`, this.deleteHabit);
-    this.router.post(
-      this.path,
-      validationMiddleware(CreateHabitDto),
-      this.createHabit,
-    );
+    this.router
+      .all(`${this.path}/*`, authMiddleware)
+      .patch(
+        `${this.path}/:id`,
+        validationMiddleware(CreateHabitDto, true),
+        this.modifyHabit,
+      )
+      .delete(`${this.path}/:id`, this.deleteHabit)
+      .post(
+        this.path,
+        authMiddleware,
+        validationMiddleware(CreateHabitDto),
+        this.createHabit,
+      );
   }
 
-  private getAllHabits = (req: express.Request, res: express.Response) => {
-    this.habit.find().then(habits => {
-      res.send(habits);
-    });
+  private getAllHabits = async (
+    req: express.Request,
+    res: express.Response,
+  ) => {
+    const habits = await this.habit.find();
+    res.send(habits);
   };
-  private getHabitById = (
+  private getHabitById = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    this.habit.findById(id).then(habit => {
-      if (habit) res.send(habit);
-      else next(new NotFoundException(id, this.path));
-    });
+    const habit = this.habit.findById(id);
+    if (habit) res.send(habit);
+    else next(new NotFoundException(id, this.path));
   };
-  private modifyHabit = (
-    req: express.Request,
+  private modifyHabit = async (
+    req: ReqWithUser,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
     const habitData: Habit = req.body;
-    this.habit.findByIdAndUpdate(id, habitData, { new: true }).then(habit => {
-      if (habit) res.send(habit);
-      else next(new NotFoundException(id, this.path));
+    const habit = await this.habit.findByIdAndUpdate(id, habitData, {
+      new: true,
     });
+
+    if (habit) res.send(habit);
+    else next(new NotFoundException(id, this.path));
   };
-  private deleteHabit = (
-    req: express.Request,
+  private deleteHabit = async (
+    req: ReqWithUser,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    this.habit.findByIdAndDelete(id).then(success => {
-      if (success) res.send(200);
-      else new NotFoundException(id, this.path);
-    });
+    const successResponse = this.habit.findByIdAndDelete(id);
+
+    if (successResponse) res.send(200);
+    else new NotFoundException(id, this.path);
   };
-  private createHabit = (req: express.Request, res: express.Response) => {
+  private createHabit = async (req: ReqWithUser, res: express.Response) => {
     const habitData: Habit = req.body;
-    const createdHabit = new this.habit(habitData);
-    createdHabit.save().then(savedHabit => res.send(savedHabit));
+    const createdHabit = new this.habit({
+      ...habitData,
+      verifiedId: req.user._id,
+    });
+    const savedHabit = await createdHabit.save();
+    res.send(savedHabit);
   };
 }
 
