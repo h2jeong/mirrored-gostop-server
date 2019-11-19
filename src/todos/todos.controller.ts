@@ -36,24 +36,22 @@ class TodosController implements Controller {
       );
   }
 
-  private getAllTodos = (req: express.Request, res: express.Response) => {
-    this.todo.find().then(todos => {
-      res.send(todos);
-    });
+  private getAllTodos = async (req: express.Request, res: express.Response) => {
+    const todos = await this.todo.find();
+    res.send(todos);
   };
-  private getTodoById = (
+  private getTodoById = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    this.todo.findById(id).then(todo => {
-      if (todo) {
-        res.send(todo);
-      } else {
-        next(new NotFoundException(id, this.path));
-      }
-    });
+    const todo = await this.todo.findById(id);
+    if (todo) {
+      res.send(todo);
+    } else {
+      next(new NotFoundException(id, this.path));
+    }
   };
   private createTodo = async (req: ReqWithUser, res: express.Response) => {
     console.log('createTodo ::', req.body);
@@ -86,7 +84,7 @@ class TodosController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const successResponse = this.todo.findByIdAndDelete(id);
+    const successResponse = await this.todo.findByIdAndDelete(id);
 
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));

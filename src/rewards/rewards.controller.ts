@@ -73,7 +73,7 @@ class RewardsController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const successResponse = this.reward.findByIdAndDelete(id);
+    const successResponse = await this.reward.findByIdAndDelete(id);
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
   };

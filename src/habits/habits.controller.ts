@@ -49,7 +49,7 @@ class HabitsController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const habit = this.habit.findById(id);
+    const habit = await this.habit.findById(id);
     if (habit) res.send(habit);
     else next(new NotFoundException(id, this.path));
   };
@@ -73,7 +73,7 @@ class HabitsController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const successResponse = this.habit.findByIdAndDelete(id);
+    const successResponse = await this.habit.findByIdAndDelete(id);
 
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
