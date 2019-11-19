@@ -24,6 +24,7 @@ coverage
 # Dependency directory
 node_modules
 bower_components
+yarn.lock
 
 # Editors
 .idea
@@ -54,4 +55,8 @@ test/**/*.js
 test/**/*.js.map
 coverage/
 !test/preprocessor.js
-mydb.sql
+
+# .zshrc .bashrc ?? need to check
+.bashrc
+.zshrc
+.vscode

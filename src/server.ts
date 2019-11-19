@@ -1,9 +1,16 @@
-import * as express from 'express';
+import App from './app';
+import 'dotenv/config';
+import validateEnv from './utils/validateEnv';
+import TodosController from './todos/todos.controller';
+import HabitsController from './habits/habits.controller';
+import RewardsController from './rewards/rewards.controller';
 
-const app = express();
+validateEnv();
 
-app.get('/', (request, response) => {
-  response.send('Hello world!');
-});
+const app = new App([
+  new TodosController(),
+  new HabitsController(),
+  new RewardsController(),
+]);
 
-app.listen(5000);
+app.listen();
