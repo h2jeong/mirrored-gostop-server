@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "paths": { "*": ["types/*"] },
     "target": "es2017",
     "alwaysStrict": true,
     "noImplicitAny": true,
     "experimentalDecorators": true,
+    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "sourceMap": true,
     "outDir": "./dist",

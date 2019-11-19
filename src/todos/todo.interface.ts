@@ -1,3 +1,4 @@
+// for test : user, alarm, date => dataType string
 interface Todo {
   user: string;
   title: string;

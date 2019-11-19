@@ -2,6 +2,9 @@ import * as express from 'express';
 import Todo from './todo.interface';
 import Controller from '../interfaces/controller.interface';
 import todoModel from './todos.model';
+import CreateTodoDto from './todo.dto';
+import NotFoundException from '../exceptions/NotFoundException';
+import validationMiddleware from '../middleware/validation.middleware';
 
 class TodosController implements Controller {
   public path = '/todos';
@@ -12,12 +15,20 @@ class TodosController implements Controller {
     this.initializeRoutes();
   }
 
-  public initializeRoutes() {
+  private initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
-    this.router.patch(`${this.path}/:id`, this.modifyTodo);
+    this.router.patch(
+      `${this.path}/:id`,
+      validationMiddleware(CreateTodoDto, true),
+      this.modifyTodo,
+    );
     this.router.delete(`${this.path}/:id`, this.deleteTodo);
-    this.router.post(this.path, this.createTodo);
+    this.router.post(
+      this.path,
+      validationMiddleware(CreateTodoDto),
+      this.createTodo,
+    );
   }
 
   private getAllTodos = (req: express.Request, res: express.Response) => {
@@ -35,7 +46,9 @@ class TodosController implements Controller {
       if (todo) {
         res.send(todo);
       } else {
-        res.status(404).send({ error: 'Todo not found' });
+        // res.status(404).send({ error: 'Todo not found' });
+        // next(new HttpException(404, 'Post not found'));
+        next(new NotFoundException(id, this.path));
       }
     });
   };
@@ -47,19 +60,27 @@ class TodosController implements Controller {
       res.send(savedTodo);
     });
   };
-  private modifyTodo = (req: express.Request, res: express.Response) => {
+  private modifyTodo = (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
     console.log('modifyTodo ::', req.body);
     const id = req.params.id;
     const todoData: Todo = req.body;
-    this.todo
-      .findByIdAndUpdate(id, todoData, { new: true })
-      .then(todo => res.send(todo));
+    this.todo.findByIdAndUpdate(id, todoData, { new: true }).then(todo => {
+      if (todo) {
+        res.send(todo);
+      } else {
+        next(new NotFoundException(id, this.path));
+      }
+    });
   };
   private deleteTodo = (req: express.Request, res: express.Response) => {
     const id = req.params.id;
     this.todo.findByIdAndDelete(id).then(success => {
       if (success) res.send(200);
-      else res.send(404);
+      else new NotFoundException(id, this.path);
     });
   };
 }
