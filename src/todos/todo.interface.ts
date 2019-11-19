@@ -1,10 +1,11 @@
+// for test : user, alarm, date => dataType string
 interface Todo {
   user: string;
   title: string;
   description: string;
   difficulty: number;
-  dateStart: Date;
-  dateEnd: Date;
+  dateStart: string;
+  dateEnd: string;
   alarmActive: boolean;
   alarm: string;
   coin: number;

@@ -1,7 +1,6 @@
-import { IsString, IsNumber, IsBoolean, IsDate } from 'class-validator';
+import { IsString, IsNumber, IsBoolean } from 'class-validator';
 
-// for test : user, alarm, date => dataType string
-class CreateTodoDto {
+class CreateHabitDto {
   @IsString()
   public user: string;
   @IsString()
@@ -10,10 +9,6 @@ class CreateTodoDto {
   public description: string;
   @IsNumber()
   public difficulty: number;
-  @IsString()
-  public dateStart: string;
-  @IsString()
-  public dateEnd: string;
   @IsBoolean()
   public alarmActive: boolean;
   @IsString()
@@ -25,7 +20,9 @@ class CreateTodoDto {
   @IsNumber()
   public health: number;
   @IsBoolean()
+  public positive: boolean;
+  @IsBoolean()
   public completed: boolean;
 }
 
-export default CreateTodoDto;
+export default CreateHabitDto;

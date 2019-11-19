@@ -15,7 +15,7 @@ class TodosController implements Controller {
     this.initializeRoutes();
   }
 
-  public initializeRoutes() {
+  private initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
     this.router.patch(
