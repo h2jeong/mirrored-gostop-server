@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as express from 'express';
+import * as jwt from 'jsonwebtoken';
 import Controller from '../interfaces/controller.interface';
 import userModel from '../users/user.model';
 import CreateUserDto from '../users/user.dto';
@@ -8,6 +9,8 @@ import LogInDto from './logIn.dto';
 import NoCredentialsException from '../exceptions/NoCredentialsException';
 import validationMiddleware from '../middleware/validation.middleware';
 import User from '../users/user.interface';
+import TokenData from '../interfaces/tokenData.interface';
+import DataInToken from '../interfaces/dataInToken.interface';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
@@ -47,6 +50,10 @@ class AuthenticationController implements Controller {
         password: hashedPassword,
       });
       user.password = undefined;
+
+      // jwt
+      const tokenData = this.createToken(user);
+      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       res.send(user);
     }
   };
@@ -65,6 +72,12 @@ class AuthenticationController implements Controller {
       );
       if (isPasswordMatching) {
         user.password = undefined;
+
+        // jwt
+        const tokenData = this.createToken(user);
+        express.response.setHeader('Set-Cookie', [
+          this.createCookie(tokenData),
+        ]);
         res.send(user);
       } else {
         next(new NoCredentialsException());
@@ -75,6 +88,22 @@ class AuthenticationController implements Controller {
   };
 
   private logOut = () => {};
+
+  private createToken(user: User): TokenData {
+    const expiresIn = 60 * 60;
+    const secret = process.env.JWT_SECRET;
+    const dataInToken: DataInToken = {
+      _id: user._id,
+    };
+    return {
+      expiresIn,
+      token: jwt.sign(dataInToken, secret, { expiresIn }),
+    };
+  }
+
+  private createCookie(tokenData: TokenData) {
+    return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
+  }
 }
 
 export default AuthenticationController;
