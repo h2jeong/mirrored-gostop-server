@@ -2,6 +2,7 @@ import * as express from 'express';
 import Todo from './todo.interface';
 import Controller from '../interfaces/controller.interface';
 import todoModel from './todos.model';
+import NotFoundException from '../exceptions/NotFoundException';
 
 class TodosController implements Controller {
   public path = '/todos';
@@ -35,7 +36,9 @@ class TodosController implements Controller {
       if (todo) {
         res.send(todo);
       } else {
-        res.status(404).send({ error: 'Todo not found' });
+        // res.status(404).send({ error: 'Todo not found' });
+        // next(new HttpException(404, 'Post not found'));
+        next(new NotFoundException(id, this.path));
       }
     });
   };
@@ -47,19 +50,27 @@ class TodosController implements Controller {
       res.send(savedTodo);
     });
   };
-  private modifyTodo = (req: express.Request, res: express.Response) => {
+  private modifyTodo = (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
     console.log('modifyTodo ::', req.body);
     const id = req.params.id;
     const todoData: Todo = req.body;
-    this.todo
-      .findByIdAndUpdate(id, todoData, { new: true })
-      .then(todo => res.send(todo));
+    this.todo.findByIdAndUpdate(id, todoData, { new: true }).then(todo => {
+      if (todo) {
+        res.send(todo);
+      } else {
+        next(new NotFoundException(id, this.path));
+      }
+    });
   };
   private deleteTodo = (req: express.Request, res: express.Response) => {
     const id = req.params.id;
     this.todo.findByIdAndDelete(id).then(success => {
       if (success) res.send(200);
-      else res.send(404);
+      else new NotFoundException(id, this.path);
     });
   };
 }
