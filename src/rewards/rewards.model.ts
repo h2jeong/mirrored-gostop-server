@@ -3,7 +3,7 @@ import Reward from './reward.interface';
 
 const rewardSchema = new mongoose.Schema(
   {
-    verifiedId: { type: String, required: true },
+    verifiedId: String,
     title: { type: String, required: true },
     description: { type: String, required: true },
     coin: { type: Number, default: 20, required: true },

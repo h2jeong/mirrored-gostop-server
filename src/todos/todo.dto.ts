@@ -3,8 +3,6 @@ import { IsString, IsNumber, IsBoolean, IsDate } from 'class-validator';
 // for test : user, alarm, date => dataType string
 class CreateTodoDto {
   @IsString()
-  public user: string;
-  @IsString()
   public title: string;
   @IsString()
   public description: string;

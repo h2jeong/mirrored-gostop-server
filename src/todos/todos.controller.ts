@@ -66,13 +66,13 @@ class TodosController implements Controller {
     res.send(savedTodo);
   };
   private modifyTodo = async (
-    req: ReqWithUser,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     console.log('modifyTodo ::', req.body);
     const id = req.params.id;
-    const todoData: Todo = req.body;
+    const todoData: CreateTodoDto = req.body;
     const todo = await this.todo.findByIdAndUpdate(id, todoData, { new: true });
     if (todo) {
       res.send(todo);
@@ -80,12 +80,16 @@ class TodosController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
-  private deleteTodo = async (req: ReqWithUser, res: express.Response) => {
+  private deleteTodo = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
     const id = req.params.id;
     const successResponse = this.todo.findByIdAndDelete(id);
 
     if (successResponse) res.send(200);
-    else new NotFoundException(id, this.path);
+    else next(new NotFoundException(id, this.path));
   };
 }
 

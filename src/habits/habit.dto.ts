@@ -2,8 +2,6 @@ import { IsString, IsNumber, IsBoolean } from 'class-validator';
 
 class CreateHabitDto {
   @IsString()
-  public user: string;
-  @IsString()
   public title: string;
   @IsString()
   public description: string;

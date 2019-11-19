@@ -1,5 +1,5 @@
 interface Habit {
-  user: string;
+  verifiedId: string;
   title: string;
   description: string;
   difficulty: number;

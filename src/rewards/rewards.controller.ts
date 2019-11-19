@@ -5,10 +5,8 @@ import rewardModel from './rewards.model';
 import validationMiddleware from '../middleware/validation.middleware';
 import CreateRewardDto from './reward.dto';
 import NotFoundException from '../exceptions/NotFoundException';
-import authMiddleware from 'middleware/auth.middleware';
-import ReqWithUser from 'interfaces/reqWithUser.interface';
-import ReqWithUser from 'interfaces/reqWithUser.interface';
-import ReqWithUser from 'interfaces/reqWithUser.interface';
+import authMiddleware from '../middleware/auth.middleware';
+import ReqWithUser from '../interfaces/reqWithUser.interface';
 
 class RewardsController implements Controller {
   public path = '/rewards';
@@ -53,10 +51,10 @@ class RewardsController implements Controller {
     const id = req.params.id;
     const reward = await this.reward.findById(id);
     if (reward) res.send(reward);
-    else new NotFoundException(id, this.path);
+    else next(new NotFoundException(id, this.path));
   };
   private modifyReward = async (
-    req: ReqWithUser,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
@@ -67,25 +65,25 @@ class RewardsController implements Controller {
     });
 
     if (reward) res.send(reward);
-    else new NotFoundException(id, this.path);
+    else next(new NotFoundException(id, this.path));
   };
   private deleteReward = async (
-    req: ReqWithUser,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
     const successResponse = this.reward.findByIdAndDelete(id);
     if (successResponse) res.send(200);
-    else new NotFoundException(id, this.path);
+    else next(new NotFoundException(id, this.path));
   };
   private createReward = async (req: ReqWithUser, res: express.Response) => {
-    const rewardData: Reward = req.body;
-    const createReward = new this.reward({
+    const rewardData: CreateRewardDto = req.body;
+    const createdReward = new this.reward({
       ...rewardData,
       verifiedId: req.user._id,
     });
-    const savedReward = await createReward.save();
+    const savedReward = await createdReward.save();
     res.send(savedReward);
   };
 }

@@ -75,9 +75,7 @@ class AuthenticationController implements Controller {
 
         // jwt
         const tokenData = this.createToken(user);
-        express.response.setHeader('Set-Cookie', [
-          this.createCookie(tokenData),
-        ]);
+        res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.send(user);
       } else {
         next(new NoCredentialsException());

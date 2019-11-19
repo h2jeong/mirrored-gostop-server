@@ -54,7 +54,7 @@ class HabitsController implements Controller {
     else next(new NotFoundException(id, this.path));
   };
   private modifyHabit = async (
-    req: ReqWithUser,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
@@ -68,7 +68,7 @@ class HabitsController implements Controller {
     else next(new NotFoundException(id, this.path));
   };
   private deleteHabit = async (
-    req: ReqWithUser,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
@@ -76,10 +76,10 @@ class HabitsController implements Controller {
     const successResponse = this.habit.findByIdAndDelete(id);
 
     if (successResponse) res.send(200);
-    else new NotFoundException(id, this.path);
+    else next(new NotFoundException(id, this.path));
   };
   private createHabit = async (req: ReqWithUser, res: express.Response) => {
-    const habitData: Habit = req.body;
+    const habitData: CreateHabitDto = req.body;
     const createdHabit = new this.habit({
       ...habitData,
       verifiedId: req.user._id,
