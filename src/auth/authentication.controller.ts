@@ -75,6 +75,7 @@ class AuthenticationController implements Controller {
 
         // jwt
         const tokenData = this.createToken(user);
+        console.log('authCtr :: ', user, tokenData);
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.send(user);
       } else {
@@ -86,6 +87,7 @@ class AuthenticationController implements Controller {
   };
 
   private createToken(user: User): TokenData {
+    console.log('authCtl - createToken :: ', user);
     const expiresIn = 60 * 60;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
@@ -98,7 +100,8 @@ class AuthenticationController implements Controller {
   }
 
   private createCookie(tokenData: TokenData) {
-    return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
+    console.log('authCtl - createCookie :: ', tokenData);
+    return `Authorization=${tokenData.token};HttpOnly;Max-Age=${tokenData.expiresIn}`;
   }
 
   private logOut = (req: express.Request, res: express.Response) => {
