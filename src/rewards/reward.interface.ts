@@ -1,5 +1,5 @@
 interface Reward {
-  user: string;
+  verifiedId: string;
   title: string;
   description: string;
   coin: number;

@@ -5,6 +5,8 @@ import rewardModel from './rewards.model';
 import validationMiddleware from '../middleware/validation.middleware';
 import CreateRewardDto from './reward.dto';
 import NotFoundException from '../exceptions/NotFoundException';
+import authMiddleware from '../middleware/auth.middleware';
+import ReqWithUser from '../interfaces/reqWithUser.interface';
 
 class RewardsController implements Controller {
   public path = '/rewards';
@@ -18,62 +20,71 @@ class RewardsController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllRewards);
     this.router.get(`${this.path}/:id`, this.getRewardById);
-    this.router.patch(
-      `${this.path}/:id`,
-      validationMiddleware(CreateRewardDto, true),
-      this.modifyReward,
-    );
-    this.router.delete(`${this.path}/:id`, this.deleteReward);
-    this.router.post(
-      this.path,
-      validationMiddleware(CreateRewardDto),
-      this.createReward,
-    );
+    this.router
+      .all(`${this.path}/*`, authMiddleware)
+      .patch(
+        `${this.path}/:id`,
+        validationMiddleware(CreateRewardDto, true),
+        this.modifyReward,
+      )
+      .delete(`${this.path}/:id`, this.deleteReward)
+      .post(
+        this.path,
+        authMiddleware,
+        validationMiddleware(CreateRewardDto),
+        this.createReward,
+      );
   }
 
-  private getAllRewards = (req: express.Request, res: express.Response) => {
-    this.reward.find().then(rewards => res.send(rewards));
+  private getAllRewards = async (
+    req: express.Request,
+    res: express.Response,
+  ) => {
+    const rewards = await this.reward.find();
+    res.send(rewards);
   };
-  private getRewardById = (
+  private getRewardById = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    this.reward.findById(id).then(reward => {
-      if (reward) res.send(reward);
-      else new NotFoundException(id, this.path);
-    });
+    const reward = await this.reward.findById(id);
+    if (reward) res.send(reward);
+    else next(new NotFoundException(id, this.path));
   };
-  private modifyReward = (
+  private modifyReward = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
     const rewardData: Reward = req.body;
-    this.reward
-      .findByIdAndUpdate(id, rewardData, { new: true })
-      .then(reward => {
-        if (reward) res.send(reward);
-        else new NotFoundException(id, this.path);
-      });
+    const reward = await this.reward.findByIdAndUpdate(id, rewardData, {
+      new: true,
+    });
+
+    if (reward) res.send(reward);
+    else next(new NotFoundException(id, this.path));
   };
-  private deleteReward = (
+  private deleteReward = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    this.reward.findByIdAndDelete(id).then(success => {
-      if (success) res.send(200);
-      else new NotFoundException(id, this.path);
-    });
+    const successResponse = await this.reward.findByIdAndDelete(id);
+    if (successResponse) res.send(200);
+    else next(new NotFoundException(id, this.path));
   };
-  private createReward = (req: express.Request, res: express.Response) => {
-    const rewardData: Reward = req.body;
-    const createReward = new this.reward(rewardData);
-    createReward.save().then(savedReward => res.send(savedReward));
+  private createReward = async (req: ReqWithUser, res: express.Response) => {
+    const rewardData: CreateRewardDto = req.body;
+    const createdReward = new this.reward({
+      ...rewardData,
+      verifiedId: req.user._id,
+    });
+    const savedReward = await createdReward.save();
+    res.send(savedReward);
   };
 }
 
