@@ -51,6 +51,7 @@ class RewardsController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
+    console.log('rewardCtr get/:id :: ', id);
     const reward = await this.reward.findById(id);
     if (reward) res.send(reward);
     else next(new NotFoundException(id, this.path));
@@ -65,6 +66,10 @@ class RewardsController implements Controller {
     const reward = await this.reward.findByIdAndUpdate(id, rewardData, {
       new: true,
     });
+    /* 
+    const title: String = req.body['title'];
+    const reward = await this.reward.findByOneAndUpdate(id, {title: title, new: true});
+    */
 
     if (reward) res.send(reward);
     else next(new NotFoundException(id, this.path));
@@ -87,7 +92,7 @@ class RewardsController implements Controller {
       verifiedId: req.user._id,
     });
     const savedReward = await createdReward.save();
-    await savedReward.populate('verifiedId').execPopulate();
+    await savedReward.populate('verifiedId', '-password').execPopulate();
     res.send(savedReward);
   };
 }

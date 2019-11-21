@@ -26,6 +26,7 @@ async function authMiddleware(
       console.log('authMW - user :: ', verifyResponse, user);
       if (user) {
         req.user = user;
+        next();
       } else {
         next(new WrongTokenException());
       }
