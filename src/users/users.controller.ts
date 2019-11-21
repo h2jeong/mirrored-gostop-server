@@ -29,6 +29,11 @@ class UserController implements Controller {
       authMiddleware,
       this.getAllHabitsOfUser,
     );
+    this.router.get(
+      `${this.path}/:id/rewards`,
+      authMiddleware,
+      this.getAllRewardsOfUser,
+    );
   }
 
   private getAllTodosOfUser = async (
