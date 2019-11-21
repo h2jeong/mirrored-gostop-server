@@ -40,7 +40,9 @@ class RewardsController implements Controller {
     req: express.Request,
     res: express.Response,
   ) => {
-    const rewards = await this.reward.find();
+    const rewards = await this.reward
+      .find()
+      .populate('verifiedId', '-password');
     res.send(rewards);
   };
   private getRewardById = async (
@@ -78,12 +80,14 @@ class RewardsController implements Controller {
     else next(new NotFoundException(id, this.path));
   };
   private createReward = async (req: ReqWithUser, res: express.Response) => {
+    console.log('rewardsCtl :: ', req.body, req.user);
     const rewardData: CreateRewardDto = req.body;
     const createdReward = new this.reward({
       ...rewardData,
       verifiedId: req.user._id,
     });
     const savedReward = await createdReward.save();
+    await savedReward.populate('verifiedId').execPopulate();
     res.send(savedReward);
   };
 }

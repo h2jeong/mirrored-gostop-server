@@ -3,10 +3,10 @@ import Reward from './reward.interface';
 
 const rewardSchema = new mongoose.Schema(
   {
-    verifiedId: String,
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    coin: { type: Number, default: 20, required: true },
+    verifiedId: { ref: 'User', type: mongoose.Schema.Types.ObjectId },
+    title: String,
+    description: String,
+    coin: { type: Number, default: 20 },
   },
   { _id: true, timestamps: true },
 );

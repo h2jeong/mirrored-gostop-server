@@ -3,17 +3,17 @@ import Habit from './habit.interface';
 
 const habitSchema = new mongoose.Schema(
   {
-    verifiedId: String,
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    difficulty: { type: Number, default: 0, max: 10, required: true },
-    alarmActive: { type: Boolean, default: false, required: true },
-    alarm: { type: String, required: true },
-    coin: { type: Number, default: 0, required: true },
-    point: { type: Number, default: 0, required: true },
-    health: { type: Number, default: 0, required: true },
-    positive: { type: Boolean, default: false, required: true },
-    completed: { type: Boolean, default: false, required: true },
+    verifiedId: { ref: 'User', type: mongoose.Schema.Types.ObjectId },
+    title: String,
+    description: String,
+    difficulty: { type: Number, default: 0, max: 10 },
+    alarmActive: { type: Boolean, default: false },
+    alarm: String,
+    coin: { type: Number, default: 0 },
+    point: { type: Number, default: 0 },
+    health: { type: Number, default: 0 },
+    positive: { type: Boolean, default: false },
+    completed: { type: Boolean, default: false },
   },
   {
     _id: true,

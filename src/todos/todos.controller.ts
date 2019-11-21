@@ -37,7 +37,7 @@ class TodosController implements Controller {
   }
 
   private getAllTodos = async (req: express.Request, res: express.Response) => {
-    const todos = await this.todo.find();
+    const todos = await this.todo.find().populate('verifiedId', '-password');
     res.send(todos);
   };
   private getTodoById = async (
@@ -53,16 +53,7 @@ class TodosController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
-  private createTodo = async (req: ReqWithUser, res: express.Response) => {
-    console.log('createTodo ::', req.body);
-    const todoData: CreateTodoDto = req.body;
-    const createdTodo = new this.todo({
-      ...todoData,
-      verifiedId: req.user._id,
-    });
-    const savedTodo = await createdTodo.save();
-    res.send(savedTodo);
-  };
+
   private modifyTodo = async (
     req: express.Request,
     res: express.Response,
@@ -88,6 +79,25 @@ class TodosController implements Controller {
 
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
+  };
+  private createTodo = async (req: ReqWithUser, res: express.Response) => {
+    console.log('createTodo ::', req.body);
+    const todoData: CreateTodoDto = req.body;
+    const createdTodo = new this.todo({
+      ...todoData,
+      verifiedId: req.user._id,
+      // Two-way referencing
+      // verifiedId: [req.user._id]
+    });
+    // Two-way referencing
+    /* 
+    const user = await this.user.findById(req.user._id);
+    user.todos = [...user.todos, createTodo._id];
+    await user.save();
+    */
+    const savedTodo = await createdTodo.save();
+    savedTodo.populate('verifiedId', '-password').execPopulate();
+    res.send(savedTodo);
   };
 }
 

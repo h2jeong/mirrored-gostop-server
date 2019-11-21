@@ -40,7 +40,7 @@ class HabitsController implements Controller {
     req: express.Request,
     res: express.Response,
   ) => {
-    const habits = await this.habit.find();
+    const habits = await this.habit.find().populate('verifiedId', '-password');
     res.send(habits);
   };
   private getHabitById = async (
@@ -85,6 +85,7 @@ class HabitsController implements Controller {
       verifiedId: req.user._id,
     });
     const savedHabit = await createdHabit.save();
+    savedHabit.populate('verifiedId').execPopulate();
     res.send(savedHabit);
   };
 }
