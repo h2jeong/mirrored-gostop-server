@@ -1,12 +1,12 @@
 import * as express from 'express';
-import Reward from './reward.interface';
 import Controller from '../interfaces/controller.interface';
+import CreateRewardDto from './reward.dto';
+import Reward from './reward.interface';
 import rewardModel from './rewards.model';
 import validationMiddleware from '../middleware/validation.middleware';
-import CreateRewardDto from './reward.dto';
-import NotFoundException from '../exceptions/NotFoundException';
 import authMiddleware from '../middleware/auth.middleware';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
+import NotFoundException from '../exceptions/NotFoundException';
 
 class RewardsController implements Controller {
   public path = '/rewards';

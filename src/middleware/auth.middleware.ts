@@ -12,7 +12,7 @@ async function authMiddleware(
   next: NextFunction,
 ) {
   const cookies = req.cookies;
-  console.log('authMW :: ', cookies);
+  // console.log('authMW :: ', cookies);
   if (cookies && cookies.Authorization) {
     const secret = process.env.JWT_SECRET;
     // If the token is wrong, or it expired, the jwt.verify function throws an error and we need to catch it.
@@ -30,7 +30,7 @@ async function authMiddleware(
       } else {
         next(new WrongTokenException());
       }
-      console.log('authMW :: 성공 ?');
+      // console.log('authMW :: 성공 ?');
     } catch (error) {
       next(new WrongTokenException());
     }

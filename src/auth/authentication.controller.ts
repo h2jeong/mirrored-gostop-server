@@ -1,14 +1,14 @@
 import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 import * as jwt from 'jsonwebtoken';
-import Controller from '../interfaces/controller.interface';
-import userModel from '../users/user.model';
-import CreateUserDto from '../users/user.dto';
 import EmailExistsException from '../exceptions/EmailExistsException';
-import LogInDto from './logIn.dto';
 import NoCredentialsException from '../exceptions/NoCredentialsException';
 import validationMiddleware from '../middleware/validation.middleware';
+import Controller from '../interfaces/controller.interface';
+import LogInDto from './logIn.dto';
 import User from '../users/user.interface';
+import CreateUserDto from '../users/user.dto';
+import userModel from '../users/user.model';
 import TokenData from '../interfaces/tokenData.interface';
 import DataInToken from '../interfaces/dataInToken.interface';
 
