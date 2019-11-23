@@ -4,7 +4,7 @@ import Gallery from './gallery.interface';
 const gallerySchema = new mongoose.Schema(
   {
     category: String,
-    paths: { type: Object },
+    paths: { type: [String] },
   },
   { _id: true, timestamps: true },
 );
