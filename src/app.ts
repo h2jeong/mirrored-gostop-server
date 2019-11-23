@@ -1,8 +1,9 @@
 import * as express from 'express';
 import * as mongoose from 'mongoose';
+import * as cookieParser from 'cookie-parser';
+import * as morgan from 'morgan';
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
-import * as cookieParser from 'cookie-parser';
 
 class App {
   public app: express.Application;
@@ -17,6 +18,7 @@ class App {
   }
 
   private initializeMiddleware() {
+    this.app.use(morgan('dev'));
     this.app.use(express.json());
     this.app.use(cookieParser());
   }

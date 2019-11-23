@@ -6,7 +6,7 @@ const habitSchema = new mongoose.Schema(
     verifiedId: { ref: 'User', type: mongoose.Schema.Types.ObjectId },
     title: String,
     description: String,
-    difficulty: { type: Number, default: 0, max: 10 },
+    difficulty: { type: Number, default: 0 },
     alarmActive: { type: Boolean, default: false },
     alarm: String,
     coin: { type: Number, default: 0 },
