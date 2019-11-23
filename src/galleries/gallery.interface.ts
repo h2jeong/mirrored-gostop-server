@@ -1,5 +1,5 @@
 interface Gallery {
-  todoId: String;
+  todo: String;
   files: Object;
   // paths: Express.Multer.File[];
 }

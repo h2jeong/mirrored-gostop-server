@@ -3,10 +3,9 @@ import Gallery from './gallery.interface';
 
 const gallerySchema = new mongoose.Schema(
   {
-    todoId: {
+    todo: {
       ref: 'Todo',
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
     },
     files: Object,
   },

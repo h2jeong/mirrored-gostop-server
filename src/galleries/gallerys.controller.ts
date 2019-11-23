@@ -6,11 +6,13 @@ import galleryModel from './gallerys.model';
 import NotAllowedException from '../exceptions/NotAllowedException';
 import NotFoundException from '../exceptions/NotFoundException';
 import todoModel from '../todos/todos.model';
+import CreateGalleryDto from './gallery.dto';
 
 class GalleriesController implements Controller {
   public path = '/gallery';
   public router = express.Router();
   private gallery = galleryModel;
+  private todo = todoModel;
 
   constructor() {
     this.initializeRoutes();
@@ -31,7 +33,7 @@ class GalleriesController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const galleries = await this.gallery.find();
+    const galleries = await this.gallery.find().populate('todo');
     res.send(galleries);
   };
 
@@ -41,7 +43,7 @@ class GalleriesController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const gallery = await this.gallery.findById(id);
+    const gallery = await this.gallery.findById(id).populate('todo');
     if (gallery) res.send(gallery);
     else next(new NotFoundException(id, this.path));
   };
@@ -53,19 +55,20 @@ class GalleriesController implements Controller {
   ) => {
     //const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     // const fileData = files.map(file => file.path);
-    console.log('req.files::', req.files);
-    const id = req.body.todoId;
-    const todo = await this.todo.find({ _id: id });
-    if (!todo) {
-      next(new NotFoundException(id, this.path));
+    const todoId = req.body.todo;
+    const todoData = await this.todo.find({ _id: todoId });
+    console.log('req.files::', req.files, todoData);
+    if (!todoData) {
+      next(new NotFoundException(todoId, this.path));
     }
-    console.log('creategallert ::', id, todo);
 
     const createdGallery = new this.gallery({
-      todoId: id,
       files: req.files,
+      todo: todoId,
     });
+    // todoData.gallery = createdGallery._id;
     const savedGallery = await createdGallery.save();
+    await savedGallery.populate('todo').execPopulate();
     res.send(savedGallery);
   };
 
