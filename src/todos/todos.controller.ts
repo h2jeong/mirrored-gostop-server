@@ -7,11 +7,13 @@ import NotFoundException from '../exceptions/NotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
 import authMiddleware from '../middleware/auth.middleware';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
+import galleryModel from '../galleries/gallerys.model';
 
 class TodosController implements Controller {
   public path = '/todos';
   public router = express.Router();
   private todo = todoModel;
+  private gallery = galleryModel;
 
   constructor() {
     this.initializeRoutes();
@@ -20,6 +22,7 @@ class TodosController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
+    this.router.get(`${this.path}/:id/gallery`, this.getGalleryOfTodo);
     this.router
       .all(`${this.path}/*`, authMiddleware)
       .patch(
@@ -53,7 +56,19 @@ class TodosController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
-
+  private getGalleryOfTodo = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const id = req.params.id;
+    const gallery = await this.gallery.find({ todoId: id });
+    if (gallery) {
+      res.send(gallery);
+    } else {
+      next(new NotFoundException(id, this.path));
+    }
+  };
   private modifyTodo = async (
     req: express.Request,
     res: express.Response,

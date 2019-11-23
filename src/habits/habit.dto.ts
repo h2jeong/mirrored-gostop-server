@@ -7,8 +7,6 @@ class CreateHabitDto {
   public description: string;
   @IsNumber()
   public difficulty: number;
-  @IsBoolean()
-  public alarmActive: boolean;
   @IsString()
   public alarm: string;
   @IsNumber()

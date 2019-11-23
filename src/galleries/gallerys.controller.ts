@@ -1,8 +1,11 @@
 import * as express from 'express';
 import * as multer from 'multer';
 import Controller from '../interfaces/controller.interface';
+import authMiddleware from '../middleware/auth.middleware';
 import galleryModel from './gallerys.model';
 import NotAllowedException from '../exceptions/NotAllowedException';
+import NotFoundException from '../exceptions/NotFoundException';
+import todoModel from '../todos/todos.model';
 
 class GalleriesController implements Controller {
   public path = '/gallery';
@@ -14,12 +17,34 @@ class GalleriesController implements Controller {
   }
 
   private initializeRoutes() {
+    this.router.get(this.path, this.getAllImgs);
+    this.router.get(`${this.path}/:id`, this.getImgById);
     this.router.post(
       this.path,
-      this.upload.array('paths', 3),
+      authMiddleware,
+      this.upload.array('files', 3),
       this.createGallery,
     );
   }
+  private getAllImgs = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const galleries = await this.gallery.find();
+    res.send(galleries);
+  };
+
+  private getImgById = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const id = req.params.id;
+    const gallery = await this.gallery.findById(id);
+    if (gallery) res.send(gallery);
+    else next(new NotFoundException(id, this.path));
+  };
 
   private createGallery = async (
     req: express.Request,
@@ -29,10 +54,16 @@ class GalleriesController implements Controller {
     //const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     // const fileData = files.map(file => file.path);
     console.log('req.files::', req.files);
+    const id = req.body.todoId;
+    const todo = await this.todo.find({ _id: id });
+    if (!todo) {
+      next(new NotFoundException(id, this.path));
+    }
+    console.log('creategallert ::', id, todo);
 
     const createdGallery = new this.gallery({
-      category: 'test',
-      paths: req.files,
+      todoId: id,
+      files: req.files,
     });
     const savedGallery = await createdGallery.save();
     res.send(savedGallery);

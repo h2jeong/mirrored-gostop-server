@@ -6,8 +6,7 @@ interface Todo {
   difficulty: number;
   dateStart: string;
   dateEnd: string;
-  alarmActive: boolean;
-  alarm: string;
+  alarm?: string;
   coin: number;
   point: number;
   health: number;

@@ -7,7 +7,6 @@ const habitSchema = new mongoose.Schema(
     title: String,
     description: String,
     difficulty: { type: Number, default: 0 },
-    alarmActive: { type: Boolean, default: false },
     alarm: String,
     coin: { type: Number, default: 0 },
     point: { type: Number, default: 0 },
