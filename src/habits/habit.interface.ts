@@ -3,8 +3,7 @@ interface Habit {
   title: string;
   description: string;
   difficulty: number;
-  alarmActive: boolean;
-  alarm: string;
+  alarm?: string;
   coin: number;
   point: number;
   health: number;

@@ -66,9 +66,10 @@ class GalleriesController implements Controller {
     if (todo.length < 1) {
       next(new NotFoundException(req.body.todos, this.path));
     }
+    console.log('todo ::', todo, todo[0].gallery);
+    // gallery.length !== 0 경우 처리하기
     todo[0].gallery = [createdGallery._id];
     await todo[0].save();
-    //console.log('todo ::', todo);
     const savedGallery = await createdGallery.save();
     await savedGallery.populate('todo').execPopulate();
     res.send(savedGallery);
