@@ -4,6 +4,7 @@ import itemModel from './items.models';
 import CreateItemDto from './item.dto';
 import NotFoundException from '../exceptions/NotFoundException';
 import Item from './item.interface';
+import upload from '../middleware/upload.middleware';
 
 class ItemsController implements Controller {
   public path = '/items';
@@ -19,7 +20,7 @@ class ItemsController implements Controller {
     this.router.get(`${this.path}/:id`, this.getItemById);
     this.router.patch(`${this.path}/:id`, this.modifyItem);
     this.router.delete(`${this.path}/:id`, this.deleteItem);
-    this.router.post(this.path, this.createItem);
+    this.router.post(this.path, upload.single('itemImg'), this.createItem);
   }
 
   private getAllItems = async (
@@ -71,7 +72,7 @@ class ItemsController implements Controller {
   ) => {
     const itemData: CreateItemDto = req.body;
     console.log('item ::', itemData);
-    const createdItem = new this.item(itemData);
+    const createdItem = new this.item({ ...itemData, itemImg: req.file });
     const savedItem = await createdItem.save();
     res.send(savedItem);
   };

@@ -10,7 +10,7 @@ interface Todo {
   coin: number;
   point: number;
   health: number;
-  gallery?: string;
+  gallery?: [string];
   completed: boolean;
 }
 

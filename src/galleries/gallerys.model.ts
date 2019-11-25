@@ -3,10 +3,12 @@ import Gallery from './gallery.interface';
 
 const gallerySchema = new mongoose.Schema(
   {
-    todo: {
-      ref: 'Todo',
-      type: mongoose.Schema.Types.ObjectId,
-    },
+    todos: [
+      {
+        ref: 'Todo',
+        type: mongoose.Schema.Types.ObjectId,
+      },
+    ],
     files: Object,
   },
   { _id: true, timestamps: true },

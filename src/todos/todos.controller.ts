@@ -51,6 +51,7 @@ class TodosController implements Controller {
     const id = req.params.id;
     const todo = await this.todo
       .findById(id)
+      .populate('gallery', 'files')
       .populate('verifiedId', '_id, name');
     if (todo) {
       res.send(todo);

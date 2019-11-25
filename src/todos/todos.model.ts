@@ -14,10 +14,10 @@ const todoSchema = new mongoose.Schema(
     coin: { type: Number, default: 10 },
     point: { type: Number, default: 10 },
     health: { type: Number, default: 10 },
-    gallery: { ref: 'Gallery', type: mongoose.Schema.Types.ObjectId },
+    gallery: [{ ref: 'Gallery', type: mongoose.Schema.Types.ObjectId }],
     completed: { type: Boolean, default: false },
   },
-  { _id: true, timestamps: true },
+  { _id: true, timestamps: false },
 );
 
 const todoModel = mongoose.model<Todo & mongoose.Document>('Todo', todoSchema);
