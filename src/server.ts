@@ -7,6 +7,7 @@ import RewardsController from './rewards/rewards.controller';
 import AuthenticationController from './auth/authentication.controller';
 import UserController from './users/users.controller';
 import GalleryController from './galleries/gallerys.controller';
+import ItemsController from './items/items.controller';
 
 validateEnv();
 
@@ -17,6 +18,7 @@ const app = new App([
   new AuthenticationController(),
   new UserController(),
   new GalleryController(),
+  new ItemsController(),
 ]);
 
 app.listen();

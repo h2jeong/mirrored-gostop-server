@@ -20,17 +20,17 @@ class UserController implements Controller {
 
   private initializeRoutes() {
     this.router.get(
-      `${this.path}/:id/todos`,
+      `${this.path}/todos`,
       authMiddleware,
       this.getAllTodosOfUser,
     );
     this.router.get(
-      `${this.path}/:id/habits`,
+      `${this.path}/habits`,
       authMiddleware,
       this.getAllHabitsOfUser,
     );
     this.router.get(
-      `${this.path}/:id/rewards`,
+      `${this.path}/rewards`,
       authMiddleware,
       this.getAllRewardsOfUser,
     );
@@ -41,39 +41,34 @@ class UserController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const userId = req.params.id;
-    if (userId === req.user._id.toString()) {
-      const todos = await this.todo.find({ verifiedId: userId });
-      res.send(todos);
-    } else {
-      next(new NotAuthorizedException());
-    }
+    const userId = req.user._id;
+    // console.log('alltodo::', userId);
+    const todos = await this.todo
+      .find({ verifiedId: userId })
+      .populate('verifiedId', '_id');
+    res.send({ count: todos.length, todos: todos });
   };
   private getAllHabitsOfUser = async (
     req: ReqWithUser,
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const userId = req.params.id;
-    if (userId === req.user._id.toString()) {
-      const habits = await this.habit.find({ verifiedId: userId });
-      res.send(habits);
-    } else {
-      next(new NotAuthorizedException());
-    }
+    const userId = req.user._id;
+    const habits = await this.habit
+      .find({ verifiedId: userId })
+      .populate('verifiedId', '_id');
+    res.send({ count: habits.length, habits: habits });
   };
   private getAllRewardsOfUser = async (
     req: ReqWithUser,
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const userId = req.params.id;
-    if (userId === req.user._id.toString()) {
-      const rewards = await this.reward.find({ verifiedId: userId });
-      res.send(rewards);
-    } else {
-      next(new NotAuthorizedException());
-    }
+    const userId = req.user._id;
+    const rewards = await this.reward
+      .find({ verifiedId: userId })
+      .populate('verifiedId', '_id');
+    res.send({ count: rewards.length, rewards: rewards });
   };
 }
 

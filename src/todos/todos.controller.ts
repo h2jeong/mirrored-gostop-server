@@ -7,11 +7,13 @@ import NotFoundException from '../exceptions/NotFoundException';
 import validationMiddleware from '../middleware/validation.middleware';
 import authMiddleware from '../middleware/auth.middleware';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
+import galleryModel from '../galleries/gallerys.model';
 
 class TodosController implements Controller {
   public path = '/todos';
   public router = express.Router();
   private todo = todoModel;
+  private gallery = galleryModel;
 
   constructor() {
     this.initializeRoutes();
@@ -20,6 +22,7 @@ class TodosController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllTodos);
     this.router.get(`${this.path}/:id`, this.getTodoById);
+    this.router.get(`${this.path}/:id/gallery`, this.getGallery);
     this.router
       .all(`${this.path}/*`, authMiddleware)
       .patch(
@@ -37,7 +40,7 @@ class TodosController implements Controller {
   }
 
   private getAllTodos = async (req: express.Request, res: express.Response) => {
-    const todos = await this.todo.find().populate('verifiedId', '-password');
+    const todos = await this.todo.find();
     res.send(todos);
   };
   private getTodoById = async (
@@ -46,9 +49,27 @@ class TodosController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const todo = await this.todo.findById(id);
+    const todo = await this.todo
+      .findById(id)
+      .populate('verifiedId', '_id, name');
     if (todo) {
       res.send(todo);
+    } else {
+      next(new NotFoundException(id, this.path));
+    }
+  };
+  private getGallery = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const id = req.params.id;
+    console.log('getgalltodo::', id);
+    const gallery = await this.gallery
+      .find({ todo: id })
+      .populate('todo', '_id, title completed');
+    if (gallery) {
+      res.send(gallery);
     } else {
       next(new NotFoundException(id, this.path));
     }
@@ -96,7 +117,7 @@ class TodosController implements Controller {
     await user.save();
     */
     const savedTodo = await createdTodo.save();
-    savedTodo.populate('verifiedId', '-password').execPopulate();
+    savedTodo.populate('verifiedId', '_id, name').execPopulate();
     res.send(savedTodo);
   };
 }

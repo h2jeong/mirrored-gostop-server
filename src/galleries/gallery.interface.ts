@@ -1,6 +1,7 @@
 interface Gallery {
-  category?: String;
-  paths: Object;
+  todo: String;
+  files: Object;
+  // paths: Express.Multer.File[];
 }
 
 export default Gallery;
