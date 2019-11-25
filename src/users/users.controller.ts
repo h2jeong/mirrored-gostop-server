@@ -6,6 +6,7 @@ import todoModel from '../todos/todos.model';
 import NotAuthorizedException from '../exceptions/NotAuthorizedException';
 import habitModel from '../habits/habits.model';
 import rewardModel from '../rewards/rewards.model';
+import orderModel from '../orders/orders.model';
 
 class UserController implements Controller {
   public path = '/users';
@@ -13,6 +14,7 @@ class UserController implements Controller {
   private todo = todoModel;
   private habit = habitModel;
   private reward = rewardModel;
+  private order = orderModel;
 
   constructor() {
     this.initializeRoutes();
@@ -34,6 +36,16 @@ class UserController implements Controller {
       authMiddleware,
       this.getAllRewardsOfUser,
     );
+    this.router.get(
+      `${this.path}/shop`,
+      authMiddleware,
+      this.getAllOrdersOfUser,
+    );
+    this.router.get(
+      `${this.path}/hasItems`,
+      authMiddleware,
+      this.getAllItemsOfUser,
+    );
   }
 
   private getAllTodosOfUser = async (
@@ -43,10 +55,8 @@ class UserController implements Controller {
   ) => {
     const userId = req.user._id;
     // console.log('alltodo::', userId);
-    const todos = await this.todo
-      .find({ verifiedId: userId })
-      .populate('verifiedId', '_id');
-    res.send({ count: todos.length, todos: todos });
+    const todos = await this.todo.find({ verifiedId: userId });
+    res.send({ count: todos.length, user: userId, todos: todos });
   };
   private getAllHabitsOfUser = async (
     req: ReqWithUser,
@@ -54,10 +64,8 @@ class UserController implements Controller {
     next: express.NextFunction,
   ) => {
     const userId = req.user._id;
-    const habits = await this.habit
-      .find({ verifiedId: userId })
-      .populate('verifiedId', '_id');
-    res.send({ count: habits.length, habits: habits });
+    const habits = await this.habit.find({ verifiedId: userId });
+    res.send({ count: habits.length, user: userId, habits: habits });
   };
   private getAllRewardsOfUser = async (
     req: ReqWithUser,
@@ -65,10 +73,28 @@ class UserController implements Controller {
     next: express.NextFunction,
   ) => {
     const userId = req.user._id;
-    const rewards = await this.reward
+    const rewards = await this.reward.find({ verifiedId: userId });
+    res.send({ count: rewards.length, user: userId, rewards: rewards });
+  };
+  private getAllOrdersOfUser = async (
+    req: ReqWithUser,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const userId = req.user._id;
+    const orders = await this.order.find({ verifiedId: userId });
+    res.send({ count: orders.length, user: userId, orders: orders });
+  };
+  private getAllItemsOfUser = async (
+    req: ReqWithUser,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const userId = req.user._id;
+    const hasItems = await this.order
       .find({ verifiedId: userId })
-      .populate('verifiedId', '_id');
-    res.send({ count: rewards.length, rewards: rewards });
+      .populate('item', '_id category name activity');
+    res.send({ count: hasItems.length, user: userId, hasItems: hasItems });
   };
 }
 
