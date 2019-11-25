@@ -51,6 +51,7 @@ class TodosController implements Controller {
     const id = req.params.id;
     const todo = await this.todo
       .findById(id)
+      .populate('gallery', 'files')
       .populate('verifiedId', '_id, name');
     if (todo) {
       res.send(todo);
@@ -66,8 +67,8 @@ class TodosController implements Controller {
     const id = req.params.id;
     console.log('getgalltodo::', id);
     const gallery = await this.gallery
-      .find({ todo: id })
-      .populate('todo', '_id, title completed');
+      .find({ todos: id })
+      .populate('todos', '_id title completed');
     if (gallery) {
       res.send(gallery);
     } else {

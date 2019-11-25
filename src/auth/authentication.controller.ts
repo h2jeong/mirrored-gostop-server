@@ -105,7 +105,7 @@ class AuthenticationController implements Controller {
   }
 
   private logOut = (req: express.Request, res: express.Response) => {
-    res.setHeader('Set-cookie', ['Authorization=;Max-age-0']);
+    res.setHeader('Set-cookie', ['Authorization=;Max-age=0']);
     res.send(200);
   };
 }

@@ -1,11 +1,10 @@
 import * as express from 'express';
-import * as multer from 'multer';
 import Controller from '../interfaces/controller.interface';
 import authMiddleware from '../middleware/auth.middleware';
 import galleryModel from './gallerys.model';
-import NotAllowedException from '../exceptions/NotAllowedException';
 import NotFoundException from '../exceptions/NotFoundException';
 import todoModel from '../todos/todos.model';
+import upload from '../middleware/upload.middleware';
 import CreateGalleryDto from './gallery.dto';
 
 class GalleriesController implements Controller {
@@ -24,7 +23,7 @@ class GalleriesController implements Controller {
     this.router.post(
       this.path,
       authMiddleware,
-      this.upload.array('files', 3),
+      upload.array('files', 3),
       this.createGallery,
     );
   }
@@ -55,47 +54,26 @@ class GalleriesController implements Controller {
   ) => {
     //const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     // const fileData = files.map(file => file.path);
-    const todoId = req.body.todo;
-    const todoData = await this.todo.find({ _id: todoId });
-    console.log('req.files::', req.files, todoData);
-    if (!todoData) {
-      next(new NotFoundException(todoId, this.path));
-    }
-
+    const galleryData: CreateGalleryDto = req.body;
     const createdGallery = new this.gallery({
+      ...galleryData,
       files: req.files,
-      todo: todoId,
+      todos: [req.body.todos],
     });
-    // todoData.gallery = createdGallery._id;
+    // console.log('createdGallery ::', createdGallery, req.body.todos);
+    const todo = await this.todo.find({ _id: req.body.todos });
+    // console.log('todo ::', todo);
+    if (todo.length < 1) {
+      next(new NotFoundException(req.body.todos, this.path));
+    }
+    console.log('todo ::', todo, todo[0].gallery);
+    // gallery.length !== 0 경우 처리하기
+    todo[0].gallery = [createdGallery._id];
+    await todo[0].save();
     const savedGallery = await createdGallery.save();
     await savedGallery.populate('todo').execPopulate();
     res.send(savedGallery);
   };
-
-  private storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, './upload/');
-    },
-    filename: (req, file, cb) => cb(null, new Date() + file.originalname),
-  });
-
-  private fileFilter = (
-    req: express.Request,
-    file: Express.Multer.File,
-    cb: (error: Error | null, acceptFile: boolean) => void,
-  ): void => {
-    const mimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp'];
-    if (mimeTypes.includes(file.mimetype)) cb(null, true);
-    else {
-      cb(new NotAllowedException(), false);
-    }
-  };
-
-  private upload = multer({
-    storage: this.storage,
-    limits: { fileSize: 1024 * 1024 * 5 },
-    fileFilter: this.fileFilter,
-  });
 }
 
 export default GalleriesController;

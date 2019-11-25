@@ -4,6 +4,7 @@ import itemModel from './items.models';
 import CreateItemDto from './item.dto';
 import NotFoundException from '../exceptions/NotFoundException';
 import Item from './item.interface';
+import upload from '../middleware/upload.middleware';
 
 class ItemsController implements Controller {
   public path = '/items';
@@ -17,9 +18,13 @@ class ItemsController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllItems);
     this.router.get(`${this.path}/:id`, this.getItemById);
-    this.router.patch(`${this.path}/:id`, this.modifyItem);
+    this.router.patch(
+      `${this.path}/:id`,
+      upload.single('itemImg'),
+      this.modifyItem,
+    );
     this.router.delete(`${this.path}/:id`, this.deleteItem);
-    this.router.post(this.path, this.createItem);
+    this.router.post(this.path, upload.single('itemImg'), this.createItem);
   }
 
   private getAllItems = async (
@@ -37,7 +42,11 @@ class ItemsController implements Controller {
   ) => {
     const id = req.params.id;
     const item = await this.item.findById(id);
-    res.send(item);
+    if (item) {
+      res.send(item);
+    } else {
+      next(new NotFoundException(id, this.path));
+    }
   };
   private modifyItem = async (
     req: express.Request,
@@ -46,7 +55,11 @@ class ItemsController implements Controller {
   ) => {
     const itemData: Item = req.body;
     const id = req.params.id;
-    const item = await this.item.findByIdAndUpdate(id, itemData, { new: true });
+    const item = await this.item.findByIdAndUpdate(
+      id,
+      { ...itemData, itemImg: req.file },
+      { new: true },
+    );
     if (item) {
       res.send(item);
     } else {
@@ -71,7 +84,7 @@ class ItemsController implements Controller {
   ) => {
     const itemData: CreateItemDto = req.body;
     console.log('item ::', itemData);
-    const createdItem = new this.item(itemData);
+    const createdItem = new this.item({ ...itemData, itemImg: req.file });
     const savedItem = await createdItem.save();
     res.send(savedItem);
   };

@@ -1,8 +1,8 @@
-import { IsObject, IsString } from 'class-validator';
+import { IsObject, IsArray } from 'class-validator';
 
 class CreateGalleryDto {
-  @IsString()
-  public todo: string;
+  @IsArray()
+  public todos: [string];
   @IsObject()
   public files: object;
 }

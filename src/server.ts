@@ -8,6 +8,7 @@ import AuthenticationController from './auth/authentication.controller';
 import UserController from './users/users.controller';
 import GalleryController from './galleries/gallerys.controller';
 import ItemsController from './items/items.controller';
+import OrdersController from './orders/orders.controller';
 
 validateEnv();
 
@@ -19,6 +20,7 @@ const app = new App([
   new UserController(),
   new GalleryController(),
   new ItemsController(),
+  new OrdersController(),
 ]);
 
 app.listen();
