@@ -40,7 +40,7 @@ class TodosController implements Controller {
   }
 
   private getAllTodos = async (req: express.Request, res: express.Response) => {
-    const todos = await this.todo.find();
+    const todos = await this.todo.find().populate('verifiedId', '-password');
     res.send(todos);
   };
   private getTodoById = async (
@@ -68,7 +68,7 @@ class TodosController implements Controller {
     console.log('getgalltodo::', id);
     const gallery = await this.gallery
       .find({ todos: id })
-      .populate('todos', '_id title completed');
+      .populate('todos', '_id title completed verifiedId');
     if (gallery) {
       res.send(gallery);
     } else {

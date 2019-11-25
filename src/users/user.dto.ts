@@ -1,9 +1,9 @@
-import { IsString, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsBoolean } from 'class-validator';
 
 class CreateUserDto {
   @IsString()
   public name: string;
-  @IsString()
+  @IsEmail()
   public email: string;
   @IsString()
   public password: string;

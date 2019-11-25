@@ -52,7 +52,9 @@ class RewardsController implements Controller {
   ) => {
     const id = req.params.id;
     console.log('rewardCtr get/:id :: ', id);
-    const reward = await this.reward.findById(id);
+    const reward = await this.reward
+      .findById(id)
+      .populate('verifiedId', '_id name');
     if (reward) res.send(reward);
     else next(new NotFoundException(id, this.path));
   };
@@ -66,11 +68,6 @@ class RewardsController implements Controller {
     const reward = await this.reward.findByIdAndUpdate(id, rewardData, {
       new: true,
     });
-    /* 
-    const title: String = req.body['title'];
-    const reward = await this.reward.findByOneAndUpdate(id, {title: title, new: true});
-    */
-
     if (reward) res.send(reward);
     else next(new NotFoundException(id, this.path));
   };
