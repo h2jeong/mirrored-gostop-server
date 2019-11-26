@@ -8,6 +8,7 @@ const orderSchema = new mongoose.Schema(
     amount: { type: Number, default: 1 },
     totalPrice: { type: Number, required: true },
     payment: { type: String, default: 'coin', required: true },
+    activity: { type: Boolean, default: true, required: true },
   },
   { _id: true, timestamps: true },
 );

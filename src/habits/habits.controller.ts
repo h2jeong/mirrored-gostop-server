@@ -49,7 +49,9 @@ class HabitsController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const habit = await this.habit.findById(id);
+    const habit = await this.habit
+      .findById(id)
+      .populate('verifiedId', '_id name');
     if (habit) res.send(habit);
     else next(new NotFoundException(id, this.path));
   };

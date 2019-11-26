@@ -32,7 +32,7 @@ class GalleriesController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const galleries = await this.gallery.find().populate('todo');
+    const galleries = await this.gallery.find();
     res.send(galleries);
   };
 
@@ -42,7 +42,7 @@ class GalleriesController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    const gallery = await this.gallery.findById(id).populate('todo');
+    const gallery = await this.gallery.findById(id);
     if (gallery) res.send(gallery);
     else next(new NotFoundException(id, this.path));
   };

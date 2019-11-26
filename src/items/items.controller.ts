@@ -5,6 +5,8 @@ import CreateItemDto from './item.dto';
 import NotFoundException from '../exceptions/NotFoundException';
 import Item from './item.interface';
 import upload from '../middleware/upload.middleware';
+import authMiddleware from '../middleware/auth.middleware';
+import validationMiddleware from '../middleware/validation.middleware';
 
 class ItemsController implements Controller {
   public path = '/items';
@@ -18,13 +20,21 @@ class ItemsController implements Controller {
   private initializeRoutes() {
     this.router.get(this.path, this.getAllItems);
     this.router.get(`${this.path}/:id`, this.getItemById);
-    this.router.patch(
-      `${this.path}/:id`,
-      upload.single('itemImg'),
-      this.modifyItem,
-    );
-    this.router.delete(`${this.path}/:id`, this.deleteItem);
-    this.router.post(this.path, upload.single('itemImg'), this.createItem);
+    this.router
+      .all(`${this.path}/*`, authMiddleware)
+      .patch(
+        `${this.path}/:id`,
+        validationMiddleware(CreateItemDto, true),
+        upload.single('itemImg'),
+        this.modifyItem,
+      )
+      .delete(`${this.path}/:id`, this.deleteItem)
+      .post(
+        this.path,
+        authMiddleware,
+        upload.single('itemImg'),
+        this.createItem,
+      );
   }
 
   private getAllItems = async (

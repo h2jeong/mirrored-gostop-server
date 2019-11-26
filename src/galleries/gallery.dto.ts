@@ -1,10 +1,10 @@
-import { IsObject, IsArray } from 'class-validator';
+import { IsString, ArrayContains } from 'class-validator';
 
 class CreateGalleryDto {
-  @IsArray()
-  public todos: [string];
-  @IsObject()
-  public files: object;
+  @IsString()
+  public todos: string;
+  // @ArrayContains(File: any[])
+  // public files: Express.Multer.File[];
 }
 
 export default CreateGalleryDto;

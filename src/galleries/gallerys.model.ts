@@ -1,3 +1,4 @@
+import * as express from 'express';
 import * as mongoose from 'mongoose';
 import Gallery from './gallery.interface';
 
