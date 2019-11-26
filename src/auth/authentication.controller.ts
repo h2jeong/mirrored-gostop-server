@@ -87,8 +87,8 @@ class AuthenticationController implements Controller {
   };
 
   private createToken(user: User): TokenData {
-    console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 60;
+    // console.log('authCtl - createToken :: ', user);
+    const expiresIn = 60 * 60 * 5; // 임시로 늘여 놓음
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,
@@ -100,7 +100,7 @@ class AuthenticationController implements Controller {
   }
 
   private createCookie(tokenData: TokenData) {
-    console.log('authCtl - createCookie :: ', tokenData);
+    // console.log('authCtl - createCookie :: ', tokenData);
     return `Authorization=${tokenData.token};HttpOnly;Max-Age=${tokenData.expiresIn}`;
   }
 
