@@ -7,6 +7,7 @@ import Item from './item.interface';
 import upload from '../middleware/upload.middleware';
 import authMiddleware from '../middleware/auth.middleware';
 import validationMiddleware from '../middleware/validation.middleware';
+import adminMiddleware from '../middleware/admin.middleware';
 
 class ItemsController implements Controller {
   public path = '/items';
@@ -21,7 +22,7 @@ class ItemsController implements Controller {
     this.router.get(this.path, this.getAllItems);
     this.router.get(`${this.path}/:id`, this.getItemById);
     this.router
-      .all(`${this.path}/*`, authMiddleware)
+      .all(`${this.path}/*`, authMiddleware, adminMiddleware)
       .patch(
         `${this.path}/:id`,
         validationMiddleware(CreateItemDto, true),

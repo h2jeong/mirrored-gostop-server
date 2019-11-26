@@ -11,8 +11,7 @@
     "tslint": "tslint -p tsconfig.json -c tslint.json",
     "prettier:base": "prettier --parser typescript --single-quote",
     "prettier:check": "yarn prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
-    "prettier:write": "yarn prettier:base -- --write \"src/**/*.{ts,tsx}\"",
-    "test": "jest"
+    "prettier:write": "yarn prettier:base -- --write \"src/**/*.{ts,tsx}\""
   },
   "repository": "https://github.com/h2jeong/GoStop-server.git",
   "author": "zoe <theonlyoneu@daum.net>",
@@ -44,6 +43,7 @@
     "node-gyp": "^6.0.1",
     "nodemon": "^1.19.4",
     "prettier": "^1.19.1",
+    "supertest": "^4.0.2",
     "ts-node": "^8.5.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "tslint": "^5.20.1",

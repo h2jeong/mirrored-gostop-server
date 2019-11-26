@@ -9,6 +9,7 @@ import UserController from './users/users.controller';
 import GalleryController from './galleries/gallerys.controller';
 import ItemsController from './items/items.controller';
 import OrdersController from './orders/orders.controller';
+import AdminController from './users/admin.controller';
 
 validateEnv();
 
@@ -21,6 +22,7 @@ const app = new App([
   new GalleryController(),
   new ItemsController(),
   new OrdersController(),
+  new AdminController(),
 ]);
 
 app.listen();
