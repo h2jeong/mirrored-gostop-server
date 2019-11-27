@@ -3,7 +3,6 @@ import authMiddleware from '../middleware/auth.middleware';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
 import Controller from '../interfaces/controller.interface';
 import todoModel from '../todos/todos.model';
-import NotAuthorizedException from '../exceptions/NotAuthorizedException';
 import habitModel from '../habits/habits.model';
 import rewardModel from '../rewards/rewards.model';
 import orderModel from '../orders/orders.model';

@@ -51,7 +51,6 @@ class RewardsController implements Controller {
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    console.log('rewardCtr get/:id :: ', id);
     const reward = await this.reward
       .findById(id)
       .populate('verifiedId', '_id name');
@@ -82,7 +81,6 @@ class RewardsController implements Controller {
     else next(new NotFoundException(id, this.path));
   };
   private createReward = async (req: ReqWithUser, res: express.Response) => {
-    console.log('rewardsCtl :: ', req.body, req.user);
     const rewardData: CreateRewardDto = req.body;
     const createdReward = new this.reward({
       ...rewardData,
