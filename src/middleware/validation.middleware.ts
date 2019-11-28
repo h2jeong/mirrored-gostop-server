@@ -7,9 +7,7 @@ function validationMiddleware<T>(
   type: any,
   skipMissingProperties = false,
 ): express.RequestHandler {
-  // console.log('validMv :: 여긴데 ', type);
   return (req, res, next) => {
-    // console.log('validMW :: ', type, req.body, req.header);
     validate(plainToClass(type, req.body), { skipMissingProperties }).then(
       (errors: ValidationError[]) => {
         if (errors.length > 0) {
@@ -18,7 +16,6 @@ function validationMiddleware<T>(
             .join(', ');
           next(new HttpException(400, message));
         } else {
-          // console.log('validMW :: 성공?');
           next();
         }
       },

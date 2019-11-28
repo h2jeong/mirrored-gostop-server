@@ -1,60 +1,88 @@
-'use strict';
+import { google } from 'googleapis';
 
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
-const url = require('url');
-const opn = require('open');
-const destroyer = require('server-destroy');
+// interface OAuthConfig {
+//   baseUrl: string;
+//   clientId: string;
+//   clientSecret?: string;
+//   redirect?: string;
+//   grantPath?: string;
+//   revokePath?: string;
+// }
 
-const { google } = require('googleapis');
-const plus = google.plus('v1');
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URL,
-);
+// interface OAuthProvider {
+//     configure(params: OAuthConfig): OAuthConfig;
+// }
 
-google.options({ auth: oauth2Client });
+/*******************/
+/** CONFIGURATION **/
+/*******************/
 
-async function authenticate(scopes) {
-  return new Promise((resolve, reject) => {
-    // grab the url that will be used for authorization
-    const authorizeUrl = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: scopes.join(' '),
-    });
-    const server = http
-      .createServer(async (req, res) => {
-        try {
-          if (req.url.indexOf('/oauth2callback') > -1) {
-            const qs = new url.URL(req.url, 'http://localhost:3000')
-              .searchParams;
-            res.end('Authentication successful! Please return to the console.');
-            server.destroy();
-            const { tokens } = await oauth2Client.getToken(qs.get('code'));
-            oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
-            resolve(oauth2Client);
-          }
-        } catch (e) {
-          reject(e);
-        }
-      })
-      .listen(3000, () => {
-        // open the browser to the authorize url to start the workflow
-        opn(authorizeUrl, { wait: false }).then(cp => cp.unref());
-      });
-    destroyer(server);
+const googleConfig = {
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  redirect: process.env.GOOGLE_REDIRECT_URL,
+};
+
+const defaultScope = [
+  'https://www.googleapis.com/auth/plus.me',
+  'https://www.googleapis.com/auth/userinfo.email',
+];
+
+/*************/
+/** HELPERS **/
+/*************/
+
+function createConnection() {
+  return new google.auth.OAuth2(
+    googleConfig.clientId,
+    googleConfig.clientSecret,
+    googleConfig.redirect,
+  );
+}
+
+function getConnectionUrl(auth: any) {
+  return auth.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: defaultScope,
   });
 }
 
-async function runSample() {
-  // retrieve user profile
-  const res = await plus.people.get({ userId: 'me' });
-  console.log(res.data);
+function getGooglePlusApi(auth: any) {
+  return google.plus({ version: 'v1', auth });
 }
 
-const scopes = ['https://www.googleapis.com/auth/plus.me'];
-authenticate(scopes)
-  .then(client => runSample(client))
-  .catch(console.error);
+/**********/
+/** MAIN **/
+/**********/
+
+/**
+ * Part 1: Create a Google URL and send to the client to log in the user.
+ */
+export function urlGoogle() {
+  const auth = createConnection();
+  const url = getConnectionUrl(auth);
+  console.log('auth/google:: ', auth, url);
+  return url;
+}
+
+/**
+ * Part 2: Take the "code" parameter which Google gives us once when the user logs in, then get the user's email and id.
+ */
+export async function getGoogleAccountFromCode(code: any) {
+  const auth = createConnection();
+  const data = await auth.getToken(code);
+  const tokens = data.tokens;
+  auth.setCredentials(tokens);
+  const plus = getGooglePlusApi(auth);
+  const me = await plus.people.get({ userId: 'me' });
+  const userGoogleId = me.data.id;
+  const userGoogleEmail =
+    me.data.emails && me.data.emails.length && me.data.emails[0].value;
+  console.log('auth/callback :: ', code, auth, tokens, me);
+  return {
+    id: userGoogleId,
+    email: userGoogleEmail,
+    tokens: tokens,
+  };
+}

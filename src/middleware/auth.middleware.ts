@@ -30,7 +30,6 @@ async function authMiddleware(
       } else {
         next(new WrongTokenException());
       }
-      // console.log('authMW :: 성공 ?');
     } catch (error) {
       next(new WrongTokenException());
     }
