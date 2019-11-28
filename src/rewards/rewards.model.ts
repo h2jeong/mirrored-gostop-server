@@ -6,7 +6,7 @@ const rewardSchema = new mongoose.Schema(
     verifiedId: { ref: 'User', type: mongoose.Schema.Types.ObjectId },
     title: String,
     description: String,
-    coin: { type: Number, default: 20 },
+    coin: { type: Number },
   },
   { _id: true, timestamps: true },
 );

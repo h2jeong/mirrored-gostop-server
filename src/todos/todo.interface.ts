@@ -7,9 +7,9 @@ interface Todo {
   dateStart: string;
   dateEnd: string;
   alarm?: string;
-  coin: number;
-  point: number;
-  health: number;
+  coin?: number;
+  point?: number;
+  health?: number;
   gallery?: [string];
   completed: boolean;
 }
