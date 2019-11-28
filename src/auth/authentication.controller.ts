@@ -11,11 +11,16 @@ import CreateUserDto from '../users/user.dto';
 import userModel from '../users/user.model';
 import TokenData from '../interfaces/tokenData.interface';
 import DataInToken from '../interfaces/dataInToken.interface';
+import {
+  urlGoogle,
+  getGoogleAccountFromCode,
+} from '../middleware/google.middleware';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
   public router = express.Router();
   private user = userModel;
+  private redirectUrl = process.env.CLIENT_ADDRESS;
 
   constructor() {
     this.initializeRoutes();
@@ -33,7 +38,28 @@ class AuthenticationController implements Controller {
       this.logIn,
     );
     this.router.post(`${this.path}/logout`, this.logOut);
+
+    // google oauth
+    this.router.get(`${this.path}/google`, this.getGoogleUrl);
+    this.router.get(`${this.path}/callback`, this.getGoogleCode);
   }
+  private getGoogleUrl = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const url = await urlGoogle();
+    res.redirect(url);
+  };
+  private getGoogleCode = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const { code } = req.query;
+    const data = await getGoogleAccountFromCode(code);
+    console.log('code :: ', code, req.query, data);
+  };
 
   private signUp = async (
     req: express.Request,

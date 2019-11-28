@@ -35,7 +35,7 @@ class UserController implements Controller {
       .get(`${this.path}/shop`, this.getAllOrdersOfUser)
       .get(`${this.path}/hasItems`, this.getAllItemsOfUser)
       // user info modify delete
-      .get(`${this.path}/:id`, this.getUserById)
+      .get(`${this.path}/info`, this.getInfoOfUser)
       .patch(
         `${this.path}/:id`,
         validationMiddleware(CreateUserDto),
@@ -92,7 +92,7 @@ class UserController implements Controller {
       .populate('item', '_id category name activity');
     res.send({ count: hasItems.length, user: userId, hasItems: hasItems });
   };
-  private getUserById = async (
+  private getInfoOfUser = async (
     req: ReqWithUser,
     res: express.Response,
     next: express.NextFunction,
