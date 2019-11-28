@@ -4,9 +4,9 @@ interface Habit {
   description: string;
   difficulty: number;
   alarm?: string;
-  coin: number;
-  point: number;
-  health: number;
+  coin?: number;
+  point?: number;
+  health?: number;
   positive: boolean;
   completed: boolean;
 }

@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     level: { type: Number, default: 1 },
     coin: { type: Number, default: 0 },
     point: { type: Number, default: 0 },
-    health: { type: Number, default: 0 },
+    health: { type: Number, default: 200 },
     status: { type: Boolean, default: true },
     userCode: { type: Number, default: 1 },
     // Two-way referencing
