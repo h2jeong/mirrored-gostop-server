@@ -38,7 +38,7 @@ class UserController implements Controller {
       .get(`${this.path}/info`, this.getInfoOfUser)
       .patch(
         `${this.path}/:id`,
-        validationMiddleware(CreateUserDto),
+        validationMiddleware(CreateUserDto, true),
         this.modifyUser,
       )
       .delete(`${this.path}/:id`, adminMiddleware, this.deleteUser);
