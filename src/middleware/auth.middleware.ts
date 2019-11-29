@@ -23,7 +23,7 @@ async function authMiddleware(
       ) as DataInToken;
       const id = verifyResponse._id;
       const user = await userModel.findById(id);
-      console.log('authMW - user :: ', verifyResponse, user);
+      console.log('authMW - user :: ', verifyResponse);
       if (user) {
         req.user = user;
         next();
