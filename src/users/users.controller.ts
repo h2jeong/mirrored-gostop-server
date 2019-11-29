@@ -89,7 +89,7 @@ class UserController implements Controller {
     const userId = req.user._id;
     const hasItems = await this.order
       .find({ verifiedId: userId })
-      .populate('item', '_id category name activity');
+      .populate('item', '_id');
     res.send({ count: hasItems.length, user: userId, hasItems: hasItems });
   };
   private getInfoOfUser = async (

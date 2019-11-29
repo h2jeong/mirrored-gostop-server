@@ -54,7 +54,7 @@ class OrdersController implements Controller {
     const id = req.params.id;
     const order = await this.order
       .findById(id)
-      .populate('verifiedId item', '_id name price');
+      .populate('verifiedId item', '_id');
     if (order) {
       res.send(order);
     } else {
