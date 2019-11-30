@@ -52,6 +52,7 @@ class AuthenticationController implements Controller {
     const url = await urlGoogle();
     res.redirect(url);
   };
+
   private getGoogleAuth = async (
     req: express.Request,
     res: express.Response,
@@ -62,11 +63,6 @@ class AuthenticationController implements Controller {
       const googleUserInfo = await getGoogleAccountFromCode(code);
       console.log('무엇이 들어옵니까? googleUser :: ', googleUserInfo);
 
-      // if (googleUserInfo.tokens.refresh_token) {
-      //   console.log('리프레시토큰 ::', googleUserInfo.tokens.refresh_token);
-      // }
-      // console.log('액서스 토큰 :: ', googleUserInfo.tokens.access_token);
-      // 등록된 이메일 확인 - 1. 유저 등록 2. 로그인 처리(홈으로 리디렉트)
       let user = await this.user.findOne({ email: googleUserInfo.email });
       if (!user) {
         user = await this.user.create({
@@ -76,10 +72,16 @@ class AuthenticationController implements Controller {
           userCode: 3,
         });
       }
-      const tokenData = {
+      // const dataInToken: DataInToken = {
+      //   _id: user._id,
+      //   refreshToken: googleUserInfo.tokens.refresh_token,
+      // };
+
+      const tokenData: TokenData = {
         token: googleUserInfo.tokens.access_token,
         expiresIn: googleUserInfo.tokens.expiry_date,
       };
+
       console.log('authCtr :: ', user, tokenData);
       res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       res.send(user);
@@ -107,7 +109,7 @@ class AuthenticationController implements Controller {
       user.password = undefined;
 
       // jwt
-      const tokenData = this.createToken(user);
+      const tokenData = await this.createToken(user);
       res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       res.send(user);
     }
@@ -129,7 +131,7 @@ class AuthenticationController implements Controller {
         user.password = undefined;
 
         // jwt
-        const tokenData = this.createToken(user);
+        const tokenData = await this.createToken(user);
         console.log('authCtr :: ', user, tokenData);
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.send(user);
@@ -141,13 +143,24 @@ class AuthenticationController implements Controller {
     }
   };
 
-  private createToken(user: User): TokenData {
+  private async createToken(user: User) {
     // console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 60 * 5; // 임시로 늘여 놓음
+    const expiresIn = 60 * 60 * 1; // 임시로 늘여 놓음
     const secret = process.env.JWT_SECRET;
+
+    let refreshId = user._id + secret;
+    const refresh_token = await bcrypt.hash(refreshId, 10);
+    //  let salt = crypto.randomBytes(16).toString('base64');
+    //  let hash = crypto.createHmac('sha512', salt).update(refreshId).digest("base64");
+    // let token = jwt.sign(user, secret);
+    // let refresh_token = b.toString('base64');
+    console.log('refresh_token :: ', refresh_token);
+
     const dataInToken: DataInToken = {
       _id: user._id,
+      refreshToken: refresh_token,
     };
+
     return {
       expiresIn,
       token: jwt.sign(dataInToken, secret, { expiresIn }),
