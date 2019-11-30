@@ -9,6 +9,7 @@ interface User {
   health: number;
   status: boolean;
   userCode: number;
+  refreshToken: string;
 }
 
 export default User;

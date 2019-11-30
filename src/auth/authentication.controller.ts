@@ -16,6 +16,8 @@ import {
   getGoogleAccountFromCode,
 } from '../middleware/google.middleware';
 import HttpException from '../exceptions/HttpException';
+import ReqWithUser from '../interfaces/reqWithUser.interface';
+import NotFoundException from '../exceptions/NotFoundException';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
@@ -70,12 +72,9 @@ class AuthenticationController implements Controller {
           email: googleUserInfo.email,
           password: '@googleOauth',
           userCode: 3,
+          refreshToken: googleUserInfo.tokens.refresh_token,
         });
       }
-      // const dataInToken: DataInToken = {
-      //   _id: user._id,
-      //   refreshToken: googleUserInfo.tokens.refresh_token,
-      // };
 
       const tokenData: TokenData = {
         token: googleUserInfo.tokens.access_token,
@@ -109,8 +108,8 @@ class AuthenticationController implements Controller {
       user.password = undefined;
 
       // jwt
-      const tokenData = await this.createToken(user);
-      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+      // const tokenData = await this.createToken(user);
+      // res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       res.send(user);
     }
   };
@@ -121,17 +120,36 @@ class AuthenticationController implements Controller {
     next: express.NextFunction,
   ) => {
     const logInData: LogInDto = req.body;
-    const user = await this.user.findOne({ email: logInData.email });
-    if (user) {
+    const userData = await this.user.findOne({ email: logInData.email });
+
+    if (userData) {
       const isPasswordMatching = await bcrypt.compare(
         logInData.password,
-        user.password,
+        userData.password,
       );
       if (isPasswordMatching) {
-        user.password = undefined;
+        userData.password = undefined;
 
         // jwt
+        const refreshId = userData.id + process.env.REFRESH_SECRET;
+        // const hashedId = await bcrypt.hash(refreshId, 10);
+        // const expiresIn = 60 * 60 * 24;
+        const refreshToken = await jwt.sign(
+          { uid: refreshId },
+          process.env.REFRESH_SECRET,
+          { expiresIn: 60 * 60 * 24, algorithm: 'HS256' },
+        );
+
+        const user = await this.user.findByIdAndUpdate(
+          userData.id,
+          { $set: { refreshToken: refreshToken } },
+          {
+            new: true,
+          },
+        );
+
         const tokenData = await this.createToken(user);
+
         console.log('authCtr :: ', user, tokenData);
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.send(user);
@@ -143,24 +161,31 @@ class AuthenticationController implements Controller {
     }
   };
 
-  private async createToken(user: User) {
+  private getToken = async (
+    req: ReqWithUser,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const id = req.user._id;
+    const user = await this.user.findById(id);
+
+    if (user && user.refreshToken) {
+      const tokenData = await this.createToken(user);
+      console.log('authCtr :: ', user, tokenData);
+      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+      res.send(user);
+    } else {
+      next(new NotFoundException(id, this.path));
+    }
+  };
+
+  private createToken(user: User) {
     // console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 60 * 1; // 임시로 늘여 놓음
+    const expiresIn = 60 * 60 * 1;
     const secret = process.env.JWT_SECRET;
-
-    let refreshId = user._id + secret;
-    const refresh_token = await bcrypt.hash(refreshId, 10);
-    //  let salt = crypto.randomBytes(16).toString('base64');
-    //  let hash = crypto.createHmac('sha512', salt).update(refreshId).digest("base64");
-    // let token = jwt.sign(user, secret);
-    // let refresh_token = b.toString('base64');
-    console.log('refresh_token :: ', refresh_token);
-
     const dataInToken: DataInToken = {
       _id: user._id,
-      refreshToken: refresh_token,
     };
-
     return {
       expiresIn,
       token: jwt.sign(dataInToken, secret, { expiresIn }),
