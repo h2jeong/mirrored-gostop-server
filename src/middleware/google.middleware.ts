@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
-
+const googleClient = require('../../google.json');
+const { OAuth2Client } = require('google-auth-library');
 // interface OAuthConfig {
 //   baseUrl: string;
 //   clientId: string;
@@ -18,14 +19,14 @@ import { google } from 'googleapis';
 /*******************/
 
 const googleConfig = {
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect: process.env.GOOGLE_REDIRECT_URL,
+  clientId: googleClient.web.client_id,
+  clientSecret: googleClient.web.client_secret,
+  redirect: googleClient.web.redirect_uris[0],
 };
 
 const defaultScope = [
-  'https://www.googleapis.com/auth/plus.me',
   'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/plus.me',
 ];
 
 /*************/
@@ -62,7 +63,7 @@ function getGooglePlusApi(auth: any) {
 export function urlGoogle() {
   const auth = createConnection();
   const url = getConnectionUrl(auth);
-  console.log('auth/google:: ', auth, url);
+  // console.log('google url:: ', auth, url);
   return url;
 }
 
@@ -70,19 +71,27 @@ export function urlGoogle() {
  * Part 2: Take the "code" parameter which Google gives us once when the user logs in, then get the user's email and id.
  */
 export async function getGoogleAccountFromCode(code: any) {
-  const auth = createConnection();
-  const data = await auth.getToken(code);
-  const tokens = data.tokens;
+  const auth = await createConnection();
+  const { tokens } = await auth.getToken(code);
+
   auth.setCredentials(tokens);
-  const plus = getGooglePlusApi(auth);
-  const me = await plus.people.get({ userId: 'me' });
-  const userGoogleId = me.data.id;
-  const userGoogleEmail =
-    me.data.emails && me.data.emails.length && me.data.emails[0].value;
-  console.log('auth/callback :: ', code, auth, tokens, me);
+
+  /** Using a Google API Client Library **/
+  const id_Token = tokens.id_token;
+  const client = new OAuth2Client(googleConfig.clientId);
+  const ticket = await client.verifyIdToken({
+    idToken: id_Token,
+    audience: googleConfig.clientId, // Specify the CLIENT_ID of the app that accesses the backend
+    // Or, if multiple clients access the backend:
+    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+  });
+  const payload = ticket.getPayload();
+  const id = payload['sub'];
+  const email = payload['email'];
+
   return {
-    id: userGoogleId,
-    email: userGoogleEmail,
     tokens: tokens,
+    id: id,
+    email: email,
   };
 }

@@ -15,6 +15,7 @@ import {
   urlGoogle,
   getGoogleAccountFromCode,
 } from '../middleware/google.middleware';
+import HttpException from '../exceptions/HttpException';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
@@ -41,7 +42,7 @@ class AuthenticationController implements Controller {
 
     // google oauth
     this.router.get(`${this.path}/google`, this.getGoogleUrl);
-    this.router.get(`${this.path}/callback`, this.getGoogleCode);
+    this.router.get(`${this.path}/callback`, this.getGoogleAuth);
   }
   private getGoogleUrl = async (
     req: express.Request,
@@ -51,14 +52,42 @@ class AuthenticationController implements Controller {
     const url = await urlGoogle();
     res.redirect(url);
   };
-  private getGoogleCode = async (
+  private getGoogleAuth = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const { code } = req.query;
-    const data = await getGoogleAccountFromCode(code);
-    console.log('code :: ', code, req.query, data);
+    try {
+      const { code } = req.query;
+      const googleUserInfo = await getGoogleAccountFromCode(code);
+      console.log('무엇이 들어옵니까? googleUser :: ', googleUserInfo);
+
+      // if (googleUserInfo.tokens.refresh_token) {
+      //   console.log('리프레시토큰 ::', googleUserInfo.tokens.refresh_token);
+      // }
+      // console.log('액서스 토큰 :: ', googleUserInfo.tokens.access_token);
+      // 등록된 이메일 확인 - 1. 유저 등록 2. 로그인 처리(홈으로 리디렉트)
+      let user = await this.user.findOne({ email: googleUserInfo.email });
+      if (!user) {
+        user = await this.user.create({
+          name: 'googleUser',
+          email: googleUserInfo.email,
+          password: '@googleOauth',
+          userCode: 3,
+        });
+      }
+      const tokenData = {
+        token: googleUserInfo.tokens.access_token,
+        expiresIn: googleUserInfo.tokens.expiry_date,
+      };
+      console.log('authCtr :: ', user, tokenData);
+      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+      res.send(user);
+      // res.redirect(this.redirectUrl);
+    } catch (error) {
+      console.error(error);
+      next(new HttpException(500, error.message));
+    }
   };
 
   private signUp = async (
