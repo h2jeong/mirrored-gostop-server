@@ -60,7 +60,7 @@ class AuthenticationController implements Controller {
     next: express.NextFunction,
   ) => {
     const logInData: LogInDto = req.body;
-    const userData = await this.user.findOne({ email: logInData.email });
+    let userData = await this.user.findOne({ email: logInData.email });
 
     if (userData) {
       const isPasswordMatching = await bcrypt.compare(
@@ -74,11 +74,16 @@ class AuthenticationController implements Controller {
         const refreshToken = await jwt.sign(
           { uid: userData._id },
           process.env.REFRESH_SECRET,
-          { expiresIn: 60 * 5 },
+          { expiresIn: 60 * 60 * 24 * 30 },
         );
-        const user = await this.user.findByIdAndUpdate(userData._id, {
-          refresh_token: refreshToken,
-        });
+        console.log('login refresh', typeof refreshToken);
+        const user = await this.user.findByIdAndUpdate(
+          userData._id,
+          { refreshToken: refreshToken },
+          {
+            new: true,
+          },
+        );
         const tokenData = await this.createToken(user);
 
         console.log('authCtr :: ', user, tokenData);
@@ -101,7 +106,7 @@ class AuthenticationController implements Controller {
 
   private createToken(user: User) {
     // console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 1;
+    const expiresIn = 60 * 60 * 5;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,

@@ -21,7 +21,7 @@ class App {
     this.app.use(morgan('dev'));
     this.app.use(express.json());
     this.app.use(cookieParser());
-    this.app.use('/upload', express.static('upload'));
+    // this.app.use('/upload', express.static('upload'));
   }
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
