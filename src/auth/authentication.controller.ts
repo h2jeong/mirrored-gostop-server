@@ -11,19 +11,13 @@ import CreateUserDto from '../users/user.dto';
 import userModel from '../users/user.model';
 import TokenData from '../interfaces/tokenData.interface';
 import DataInToken from '../interfaces/dataInToken.interface';
-import {
-  urlGoogle,
-  getGoogleAccountFromCode,
-} from '../middleware/google.middleware';
-import HttpException from '../exceptions/HttpException';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
-import NotFoundException from '../exceptions/NotFoundException';
+import WrongTokenException from '../exceptions/WrongTokenException';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
   public router = express.Router();
   private user = userModel;
-  private redirectUrl = process.env.CLIENT_ADDRESS;
 
   constructor() {
     this.initializeRoutes();
@@ -41,55 +35,9 @@ class AuthenticationController implements Controller {
       this.logIn,
     );
     this.router.post(`${this.path}/logout`, this.logOut);
-
-    // google oauth
-    this.router.get(`${this.path}/google`, this.getGoogleUrl);
-    this.router.get(`${this.path}/callback`, this.getGoogleAuth);
+    // Refresh Token
+    this.router.post(`${this.path}/token`, this.getToken);
   }
-  private getGoogleUrl = async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    const url = await urlGoogle();
-    res.redirect(url);
-  };
-
-  private getGoogleAuth = async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    try {
-      const { code } = req.query;
-      const googleUserInfo = await getGoogleAccountFromCode(code);
-      console.log('무엇이 들어옵니까? googleUser :: ', googleUserInfo);
-
-      let user = await this.user.findOne({ email: googleUserInfo.email });
-      if (!user) {
-        user = await this.user.create({
-          name: 'googleUser',
-          email: googleUserInfo.email,
-          password: '@googleOauth',
-          userCode: 3,
-          refreshToken: googleUserInfo.tokens.refresh_token,
-        });
-      }
-
-      const tokenData: TokenData = {
-        token: googleUserInfo.tokens.access_token,
-        expiresIn: googleUserInfo.tokens.expiry_date,
-      };
-
-      console.log('authCtr :: ', user, tokenData);
-      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-      res.send(user);
-      // res.redirect(this.redirectUrl);
-    } catch (error) {
-      console.error(error);
-      next(new HttpException(500, error.message));
-    }
-  };
 
   private signUp = async (
     req: express.Request,
@@ -106,10 +54,6 @@ class AuthenticationController implements Controller {
         password: hashedPassword,
       });
       user.password = undefined;
-
-      // jwt
-      // const tokenData = await this.createToken(user);
-      // res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       res.send(user);
     }
   };
@@ -131,23 +75,14 @@ class AuthenticationController implements Controller {
         userData.password = undefined;
 
         // jwt
-        const refreshId = userData.id + process.env.REFRESH_SECRET;
-        // const hashedId = await bcrypt.hash(refreshId, 10);
-        // const expiresIn = 60 * 60 * 24;
         const refreshToken = await jwt.sign(
-          { uid: refreshId },
+          { uid: userData._id },
           process.env.REFRESH_SECRET,
-          { expiresIn: 60 * 60 * 24, algorithm: 'HS256' },
+          { expiresIn: 60 * 60 * 24 },
         );
-
-        const user = await this.user.findByIdAndUpdate(
-          userData.id,
-          { $set: { refreshToken: refreshToken } },
-          {
-            new: true,
-          },
-        );
-
+        const user = await this.user.findByIdAndUpdate(userData._id, {
+          refresh_token: refreshToken,
+        });
         const tokenData = await this.createToken(user);
 
         console.log('authCtr :: ', user, tokenData);
@@ -161,6 +96,12 @@ class AuthenticationController implements Controller {
     }
   };
 
+  // 1. 프론트에 토큰 expiry date 저장, 백엔드에 request할 때마다 만료 날짜의 초과 확인
+  // 2. 만료된 경우 refresh token 요청
+  // 3. 백엔드는 refresh token 엔드포인트를 만들고 acees-todken/refresh-token 모두 보내준다.
+  // 4. access-token 으로 필요한 데이터를 얻는다. (만료 날짜 고려하지 말고)
+  // 5. refresh-token과 디비의 최신 refresh-token 비교하여 일치하지 않을 경우 유저는 인증되지 않았고 그렇지 않으면 계속 고고
+  // 6. 토큰이 유효하면 디비를 쿼리하지 않고 access-token을 새 토큰으로 만들고 아닐 경우 쿼리 하고 access-token을 다시 만든다.
   private getToken = async (
     req: ReqWithUser,
     res: express.Response,
@@ -171,17 +112,17 @@ class AuthenticationController implements Controller {
 
     if (user && user.refreshToken) {
       const tokenData = await this.createToken(user);
-      console.log('authCtr :: ', user, tokenData);
+      console.log('getToken :: ', user, tokenData);
       res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
       res.send(user);
     } else {
-      next(new NotFoundException(id, this.path));
+      next(new WrongTokenException());
     }
   };
 
   private createToken(user: User) {
     // console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 60 * 1;
+    const expiresIn = 60 * 60 * 5;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,
