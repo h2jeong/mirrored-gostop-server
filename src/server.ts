@@ -10,6 +10,7 @@ import GalleryController from './galleries/gallerys.controller';
 import ItemsController from './items/items.controller';
 import OrdersController from './orders/orders.controller';
 import AdminController from './users/admin.controller';
+import GoogleController from './auth/google.controller';
 
 validateEnv();
 
@@ -23,6 +24,7 @@ const app = new App([
   new ItemsController(),
   new OrdersController(),
   new AdminController(),
+  new GoogleController(),
 ]);
 
 app.listen();
