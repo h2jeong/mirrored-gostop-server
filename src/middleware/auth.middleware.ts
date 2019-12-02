@@ -21,6 +21,7 @@ async function authMiddleware(
         cookies.Authorization,
         secret,
       ) as DataInToken;
+
       const id = verifyResponse._id;
       const user = await userModel.findById(id);
       console.log('authMW - user :: ', verifyResponse);

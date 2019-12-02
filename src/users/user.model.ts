@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
     health: { type: Number, default: 200 },
     status: { type: Boolean, default: true },
     userCode: { type: Number, default: 1 },
+
+    refreshToken: String,
     // Two-way referencing
     // todos: [{ ref: 'Todo', type: mongoose.Schema.Types.ObjectId }],
     // habits: [{ ref: 'Habit', type: mongoose.Schema.Types.ObjectId }],
