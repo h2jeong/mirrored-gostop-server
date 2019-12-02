@@ -63,7 +63,7 @@ class GoogleController implements Controller {
       res.send(user);
       // res.redirect(this.redirectUrl);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       next(new HttpException(500, error.message));
     }
   };

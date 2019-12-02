@@ -11,8 +11,6 @@ import CreateUserDto from '../users/user.dto';
 import userModel from '../users/user.model';
 import TokenData from '../interfaces/tokenData.interface';
 import DataInToken from '../interfaces/dataInToken.interface';
-import ReqWithUser from '../interfaces/reqWithUser.interface';
-import WrongTokenException from '../exceptions/WrongTokenException';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
@@ -35,8 +33,6 @@ class AuthenticationController implements Controller {
       this.logIn,
     );
     this.router.post(`${this.path}/logout`, this.logOut);
-    // Refresh Token
-    this.router.post(`${this.path}/token`, this.getToken);
   }
 
   private signUp = async (
@@ -78,7 +74,7 @@ class AuthenticationController implements Controller {
         const refreshToken = await jwt.sign(
           { uid: userData._id },
           process.env.REFRESH_SECRET,
-          { expiresIn: 60 * 60 * 24 },
+          { expiresIn: 60 * 5 },
         );
         const user = await this.user.findByIdAndUpdate(userData._id, {
           refresh_token: refreshToken,
@@ -102,27 +98,10 @@ class AuthenticationController implements Controller {
   // 4. access-token 으로 필요한 데이터를 얻는다. (만료 날짜 고려하지 말고)
   // 5. refresh-token과 디비의 최신 refresh-token 비교하여 일치하지 않을 경우 유저는 인증되지 않았고 그렇지 않으면 계속 고고
   // 6. 토큰이 유효하면 디비를 쿼리하지 않고 access-token을 새 토큰으로 만들고 아닐 경우 쿼리 하고 access-token을 다시 만든다.
-  private getToken = async (
-    req: ReqWithUser,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    const id = req.user._id;
-    const user = await this.user.findById(id);
-
-    if (user && user.refreshToken) {
-      const tokenData = await this.createToken(user);
-      console.log('getToken :: ', user, tokenData);
-      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-      res.send(user);
-    } else {
-      next(new WrongTokenException());
-    }
-  };
 
   private createToken(user: User) {
     // console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 60 * 5;
+    const expiresIn = 60 * 1;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,
