@@ -55,6 +55,7 @@ class HabitsController implements Controller {
     if (habit) res.send(habit);
     else next(new NotFoundException(id, this.path));
   };
+
   private modifyHabit = async (
     req: express.Request,
     res: express.Response,
@@ -88,7 +89,7 @@ class HabitsController implements Controller {
     });
     const savedHabit = await createdHabit.save();
     savedHabit.populate('verifiedId').execPopulate();
-    res.send(savedHabit);
+    res.send(201);
   };
 }
 

@@ -51,12 +51,12 @@ class GoogleController implements Controller {
             email: userEmail,
             password: '@googleOauth',
             userCode: 3,
-            // refreshToken: googleUserInfo.tokens.refresh_token,
+            refreshToken: googleUserInfo.tokens.refresh_token,
           });
         }
         req.user = user;
 
-        const expiresIn = 60 * 60 * 5;
+        const expiresIn = 60 * 60 * 1;
         const secret = process.env.JWT_SECRET;
         const dataInToken: DataInToken = {
           _id: user._id,
@@ -75,7 +75,6 @@ class GoogleController implements Controller {
 
       res.redirect(`http://localhost:5000/users/habits`);
     } catch (error) {
-      // console.error(error);
       next(new HttpException(500, error.message));
     }
   };

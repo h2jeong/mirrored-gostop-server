@@ -9,13 +9,10 @@ async function adminMiddleware(
   res: express.Response,
   next: express.NextFunction,
 ) {
-  console.log('try ::', req.user);
   const adminData = req.user;
-  // const admin = await userModel.findOne({ email: adminData });
-  // console.log('adminData :: ', admin);
+
   if (adminData.userCode === 2) {
     req.user = adminData;
-    // console.log('통과?');
     next();
   } else {
     next(new NoAdminException());

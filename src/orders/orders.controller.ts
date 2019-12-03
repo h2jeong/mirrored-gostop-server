@@ -46,6 +46,7 @@ class OrdersController implements Controller {
       .populate('verifiedId item', '_id name price');
     res.send(orders);
   };
+
   private getOrderById = async (
     req: express.Request,
     res: express.Response,
@@ -61,6 +62,7 @@ class OrdersController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private modifyOrder = async (
     req: express.Request,
     res: express.Response,
@@ -77,6 +79,7 @@ class OrdersController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private deleteOrder = async (
     req: express.Request,
     res: express.Response,
@@ -87,6 +90,7 @@ class OrdersController implements Controller {
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
   };
+
   private createOrder = async (
     req: ReqWithUser,
     res: express.Response,
@@ -99,7 +103,7 @@ class OrdersController implements Controller {
     });
     const savedOrder = await createdOrder.save();
     savedOrder.populate('verifiedId item').execPopulate();
-    res.send(savedOrder);
+    res.send(201);
   };
 }
 

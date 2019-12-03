@@ -22,39 +22,8 @@ async function authMiddleware(
         cookies.Authorization,
         secret,
       )) as DataInToken;
-
-      console.log('authMW - user :: ', verifyResponse);
       const id = verifyResponse._id;
       const user = await userModel.findById(id);
-
-      // const expires = Date.parse(cookies.Expires);
-      // let date = new Date().toUTCString();
-      // let now = Date.parse(date);
-      // console.log(expires, now);
-
-      // if (expires - now < 60000) {
-      //   // 60000 * 5
-      //   console.log('user:: ', user);
-      //   if (user && user.refreshToken) {
-      //     const expiresIn = 60 * 60 * 5;
-      //     const secret = process.env.JWT_SECRET;
-      //     const dataInToken: DataInToken = {
-      //       _id: id,
-      //     };
-      //     const tokenData = await {
-      //       expiresIn,
-      //       token: jwt.sign(dataInToken, secret, { expiresIn }),
-      //     };
-      //     console.log('getToken :: ', user, tokenData);
-      //     res.setHeader('Set-Cookie', [
-      //       `Authorization=${tokenData.token};HttpOnly;Max-Age=${tokenData.expiresIn}`,
-      //     ]);
-      //   } else {
-      //     next(new NoTokenException());
-      //   }
-      // } else {
-      //   next(new WrongTokenException());
-      // }
 
       if (user) {
         req.user = user;
@@ -63,9 +32,6 @@ async function authMiddleware(
         next(new WrongTokenException());
       }
     } catch (error) {
-      if (error instanceof jwt.JsonWebTokenError) {
-        next(new NotAuthorizedJWTException());
-      }
       next(new WrongTokenException());
     }
   } else {

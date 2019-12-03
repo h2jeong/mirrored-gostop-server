@@ -12,6 +12,8 @@ import userModel from '../users/user.model';
 import TokenData from '../interfaces/tokenData.interface';
 import DataInToken from '../interfaces/dataInToken.interface';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
+import WrongTokenException from '../exceptions/WrongTokenException';
+import NotAuthorizedJWTException from '../exceptions/NotAuthorizedJWTException';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
@@ -34,7 +36,7 @@ class AuthenticationController implements Controller {
       this.logIn,
     );
     this.router.post(`${this.path}/logout`, this.logOut);
-    this.router.post(`${this.path}/refresh`, this.refresh);
+    this.router.get(`${this.path}/refresh`, this.refresh);
   }
 
   private signUp = async (
@@ -73,12 +75,12 @@ class AuthenticationController implements Controller {
         userData.password = undefined;
 
         // jwt
+        const expiresIn = 60 * 60 * 24 * 7;
         const refreshToken = await jwt.sign(
           { uid: userData._id },
           process.env.REFRESH_SECRET,
-          { expiresIn: 60 * 60 * 24 * 30 },
+          { expiresIn },
         );
-        console.log('login refresh', typeof refreshToken);
         const user = await this.user.findByIdAndUpdate(
           userData._id,
           { refreshToken: refreshToken },
@@ -88,7 +90,6 @@ class AuthenticationController implements Controller {
         );
         const tokenData = await this.createToken(user);
 
-        console.log('authCtr :: ', user, tokenData);
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.json({ refresh_token: refreshToken });
       } else {
@@ -100,8 +101,7 @@ class AuthenticationController implements Controller {
   };
 
   private createToken(user: User) {
-    // console.log('authCtl - createToken :: ', user);
-    const expiresIn = 60 * 60 * 5;
+    const expiresIn = 60 * 60 * 1;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,
@@ -113,7 +113,6 @@ class AuthenticationController implements Controller {
   }
 
   private createCookie(tokenData: TokenData) {
-    // console.log('authCtl - createCookie :: ', tokenData);
     return `Authorization=${tokenData.token};HttpOnly;Max-Age=${tokenData.expiresIn}`;
   }
 
@@ -134,17 +133,32 @@ class AuthenticationController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    const id = req.user._id;
     const refreshToken = req.body.refreshToken;
 
-    const user = await this.user.findById(id);
-    console.log('refresh_token :: ', user.refreshToken === refreshToken);
+    // If the token is wrong, or it expired, the jwt.verify function throws an error and we need to catch it.
+    try {
+      const verifyResponse = await jwt.verify(
+        refreshToken,
+        process.env.REFRESH_SECRET,
+      );
 
-    if (user && user.refreshToken === refreshToken) {
-      const tokenData = await this.createToken(user);
-      res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-      res.json({ refreshToken: refreshToken });
-    } else {
+      const uid = JSON.stringify(verifyResponse)
+        .split(':')[1]
+        .split(',')[0];
+      const id = JSON.parse(uid);
+      const user = await userModel.findById(id);
+
+      if (user && user.refreshToken === refreshToken) {
+        const tokenData = await this.createToken(user);
+        res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+        res.json({ refresh_token: refreshToken });
+      } else {
+        next(new WrongTokenException());
+      }
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        next(new NotAuthorizedJWTException());
+      }
       next(new WrongTokenException());
     }
   };
