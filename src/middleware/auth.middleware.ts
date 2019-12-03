@@ -5,6 +5,7 @@ import DataInToken from '../interfaces/dataInToken.interface';
 import userModel from '../users/user.model';
 import WrongTokenException from '../exceptions/WrongTokenException';
 import NoTokenException from '../exceptions/NoTokenException';
+import NotAuthorizedJWTException from '../exceptions/NotAuthorizedJWTException';
 
 async function authMiddleware(
   req: ReqWithUser,
@@ -12,14 +13,8 @@ async function authMiddleware(
   next: NextFunction,
 ) {
   const cookies = req.cookies;
-  console.log(
-    'auth cookie :: ',
-    cookies,
-    cookies.Authorization,
-    cookies.Expires,
-  );
+
   if (cookies && cookies.Authorization) {
-    console.log('여기는?', req.body);
     const secret = process.env.JWT_SECRET;
     // If the token is wrong, or it expired, the jwt.verify function throws an error and we need to catch it.
     try {
@@ -68,6 +63,9 @@ async function authMiddleware(
         next(new WrongTokenException());
       }
     } catch (error) {
+      if (error instanceof jwt.JsonWebTokenError) {
+        next(new NotAuthorizedJWTException());
+      }
       next(new WrongTokenException());
     }
   } else {
