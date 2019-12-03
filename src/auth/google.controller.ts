@@ -61,7 +61,7 @@ class GoogleController implements Controller {
       const createCookie = `Authorization=${tokenData.token};HttpOnly;Max-Age=${tokenData.expiresIn}`;
       res.setHeader('Set-Cookie', [createCookie]);
       res.send(user);
-      // res.redirect(this.redirectUrl);
+      res.redirect('/users/habits');
     } catch (error) {
       // console.error(error);
       next(new HttpException(500, error.message));
