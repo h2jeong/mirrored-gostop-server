@@ -45,6 +45,7 @@ class AuthenticationController implements Controller {
     next: express.NextFunction,
   ) => {
     const userData: CreateUserDto = req.body;
+
     if (await this.user.findOne({ email: userData.email })) {
       next(new EmailExistsException(userData.email));
     } else {
@@ -53,6 +54,7 @@ class AuthenticationController implements Controller {
         ...userData,
         password: hashedPassword,
       });
+
       user.password = undefined;
       res.send(user);
     }
@@ -106,6 +108,7 @@ class AuthenticationController implements Controller {
     const dataInToken: DataInToken = {
       _id: user._id,
     };
+
     return {
       expiresIn,
       token: jwt.sign(dataInToken, secret, { expiresIn }),
@@ -123,7 +126,7 @@ class AuthenticationController implements Controller {
 
   // 1. 프론트에 토큰 expiry date 저장, 백엔드에 request할 때마다 만료 날짜의 초과 확인
   // 2. 만료된 경우 refresh token 요청
-  // 3. 백엔드는 refresh token 엔드포인트를 만들고 acees-todken/refresh-token 모두 보내준다.
+  // 3. 백엔드는 refresh token 엔드포인트를 만들고 acees-token/refresh-token 모두 보내준다.
   // 4. access-token 으로 필요한 데이터를 얻는다. (만료 날짜 고려하지 말고)
   // 5. refresh-token과 디비의 최신 refresh-token 비교하여 일치하지 않을 경우 유저는 인증되지 않았고 그렇지 않으면 계속 고고
   // 6. 토큰이 유효하면 디비를 쿼리하지 않고 access-token을 새 토큰으로 만들고 아닐 경우 쿼리 하고 access-token을 다시 만든다.
@@ -141,7 +144,6 @@ class AuthenticationController implements Controller {
         refreshToken,
         process.env.REFRESH_SECRET,
       );
-
       const uid = JSON.stringify(verifyResponse)
         .split(':')[1]
         .split(',')[0];
@@ -150,6 +152,7 @@ class AuthenticationController implements Controller {
 
       if (user && user.refreshToken === refreshToken) {
         const tokenData = await this.createToken(user);
+
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.json({ refresh_token: refreshToken });
       } else {

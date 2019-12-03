@@ -43,6 +43,7 @@ class HabitsController implements Controller {
     const habits = await this.habit.find().populate('verifiedId', '-password');
     res.send(habits);
   };
+
   private getHabitById = async (
     req: express.Request,
     res: express.Response,
@@ -70,6 +71,7 @@ class HabitsController implements Controller {
     if (habit) res.send(habit);
     else next(new NotFoundException(id, this.path));
   };
+
   private deleteHabit = async (
     req: express.Request,
     res: express.Response,
@@ -81,6 +83,7 @@ class HabitsController implements Controller {
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
   };
+
   private createHabit = async (req: ReqWithUser, res: express.Response) => {
     const habitData: CreateHabitDto = req.body;
     const createdHabit = new this.habit({

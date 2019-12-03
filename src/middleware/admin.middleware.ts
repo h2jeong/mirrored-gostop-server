@@ -1,6 +1,4 @@
 import * as express from 'express';
-import userModel from '../users/user.model';
-import LogInDto from '../auth/logIn.dto';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
 import NoAdminException from '../exceptions/NoAdminException';
 
