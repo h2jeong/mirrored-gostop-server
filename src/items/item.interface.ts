@@ -2,7 +2,7 @@ interface Item {
   name: String;
   category: String;
   price: Number;
-  itemImg?: Object;
+  itemImg: String;
   status?: boolean;
 }
 

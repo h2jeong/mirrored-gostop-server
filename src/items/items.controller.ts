@@ -26,16 +26,10 @@ class ItemsController implements Controller {
       .patch(
         `${this.path}/:id`,
         validationMiddleware(CreateItemDto, true),
-        upload.single('itemImg'),
         this.modifyItem,
       )
       .delete(`${this.path}/:id`, this.deleteItem)
-      .post(
-        this.path,
-        authMiddleware,
-        upload.single('itemImg'),
-        this.createItem,
-      );
+      .post(this.path, authMiddleware, this.createItem);
   }
 
   private getAllItems = async (
@@ -68,7 +62,8 @@ class ItemsController implements Controller {
     const id = req.params.id;
     const item = await this.item.findByIdAndUpdate(
       id,
-      { ...itemData, itemImg: req.file },
+      //{ ...itemData, itemImg: req.file },
+      itemData,
       { new: true },
     );
     if (item) {
@@ -94,8 +89,11 @@ class ItemsController implements Controller {
     next: express.NextFunction,
   ) => {
     const itemData: CreateItemDto = req.body;
-    console.log('item ::', itemData);
-    const createdItem = new this.item({ ...itemData, itemImg: req.file });
+    // console.log('file ::', req.body, req.file);
+    // let payLoad = { url: req.file.location };
+    // const createdItem = new this.item({ ...itemData, itemImg: payLoad });
+
+    const createdItem = new this.item(itemData);
     const savedItem = await createdItem.save();
     res.send(savedItem);
   };
