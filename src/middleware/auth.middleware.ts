@@ -5,7 +5,7 @@ import DataInToken from '../interfaces/dataInToken.interface';
 import userModel from '../users/user.model';
 import WrongTokenException from '../exceptions/WrongTokenException';
 import NoTokenException from '../exceptions/NoTokenException';
-import NotAuthorizedJWTException from '../exceptions/NotAuthorizedJWTException';
+import OverTokenExpiredException from '../exceptions/OverTokenExpiredException';
 
 async function authMiddleware(
   req: ReqWithUser,
@@ -32,7 +32,8 @@ async function authMiddleware(
         next(new WrongTokenException());
       }
     } catch (error) {
-      next(new WrongTokenException());
+      console.log('mw catch::', error.message);
+      next(new OverTokenExpiredException());
     }
   } else {
     next(new NoTokenException());
