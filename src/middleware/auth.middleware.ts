@@ -13,7 +13,7 @@ async function authMiddleware(
   next: NextFunction,
 ) {
   const cookies = req.cookies;
-  console.log('authmw::cookies ::', cookies);
+
   if (cookies && cookies.Authorization) {
     const secret = process.env.JWT_SECRET;
     // If the token is wrong, or it expired, the jwt.verify function throws an error and we need to catch it.
@@ -24,20 +24,17 @@ async function authMiddleware(
       )) as DataInToken;
       const id = verifyResponse._id;
       const user = await userModel.findById(id);
-      console.log('authmw::verifyResponse ::', verifyResponse, user);
+
       if (user) {
         req.user = user;
         next();
       } else {
-        console.log('authmw:: no user');
         next(new WrongTokenException());
       }
     } catch (error) {
-      console.log('authmw::', error.message);
       next(new WrongTokenException());
     }
   } else {
-    console.log('authmw::NoTokenException');
     next(new NoTokenException());
   }
 }

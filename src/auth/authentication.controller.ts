@@ -137,7 +137,7 @@ class AuthenticationController implements Controller {
     next: express.NextFunction,
   ) => {
     const refreshToken = req.body.refreshToken;
-    console.log('refreshToken ::', refreshToken);
+
     // If the token is wrong, or it expired, the jwt.verify function throws an error and we need to catch it.
     try {
       const verifyResponse = await jwt.verify(
@@ -149,23 +149,19 @@ class AuthenticationController implements Controller {
         .split(',')[0];
       const id = JSON.parse(uid);
       const user = await userModel.findById(id);
-      console.log('refresh ::user uid ::', user);
+
       if (user && user.refreshToken === refreshToken) {
         const tokenData = await this.createToken(user);
 
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         res.json({ refreshToken: refreshToken });
       } else {
-        console.log('refresh :: no user or no refreshtoken');
         next(new WrongTokenException());
       }
     } catch (error) {
-      console.log('refresh ::catch error', error.message);
       if (error instanceof jwt.TokenExpiredError) {
-        console.log('NotAuthorizedJWTException');
         next(new NotAuthorizedJWTException());
       }
-      console.log('refresh ::WrongTokenException');
       next(new WrongTokenException());
     }
   };
