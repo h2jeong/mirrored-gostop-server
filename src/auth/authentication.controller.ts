@@ -36,7 +36,7 @@ class AuthenticationController implements Controller {
       this.logIn,
     );
     this.router.post(`${this.path}/logout`, this.logOut);
-    this.router.get(`${this.path}/refresh`, this.refresh);
+    this.router.post(`${this.path}/refresh`, this.refresh);
   }
 
   private signUp = async (
@@ -93,7 +93,7 @@ class AuthenticationController implements Controller {
         const tokenData = await this.createToken(user);
 
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-        res.json({ refresh_token: refreshToken });
+        res.json({ refreshToken: refreshToken });
       } else {
         next(new NoCredentialsException());
       }
@@ -154,7 +154,7 @@ class AuthenticationController implements Controller {
         const tokenData = await this.createToken(user);
 
         res.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-        res.json({ refresh_token: refreshToken });
+        res.json({ refreshToken: refreshToken });
       } else {
         next(new WrongTokenException());
       }
