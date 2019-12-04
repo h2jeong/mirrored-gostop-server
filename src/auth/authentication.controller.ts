@@ -13,7 +13,7 @@ import TokenData from '../interfaces/tokenData.interface';
 import DataInToken from '../interfaces/dataInToken.interface';
 import ReqWithUser from '../interfaces/reqWithUser.interface';
 import WrongTokenException from '../exceptions/WrongTokenException';
-import NotAuthorizedJWTException from '../exceptions/NotAuthorizedJWTException';
+import OverTokenExpiredException from '../exceptions/OverTokenExpiredException';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
@@ -77,7 +77,7 @@ class AuthenticationController implements Controller {
         userData.password = undefined;
 
         // jwt
-        const expiresIn = 60 * 1 * 5 * 1;
+        const expiresIn = 60 * 5 * 1 * 1;
         const refreshToken = await jwt.sign(
           { uid: userData._id },
           process.env.REFRESH_SECRET,
@@ -103,7 +103,7 @@ class AuthenticationController implements Controller {
   };
 
   private createToken(user: User) {
-    const expiresIn = 60 * 2 * 1;
+    const expiresIn = 60 * 1 * 1;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,
@@ -160,9 +160,10 @@ class AuthenticationController implements Controller {
       }
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        next(new NotAuthorizedJWTException());
+        next(new OverTokenExpiredException());
+      } else {
+        next(new WrongTokenException());
       }
-      next(new WrongTokenException());
     }
   };
 }
