@@ -14,10 +14,6 @@ const userSchema = new mongoose.Schema(
     userCode: { type: Number, default: 1 },
 
     refreshToken: String,
-    // Two-way referencing
-    // todos: [{ ref: 'Todo', type: mongoose.Schema.Types.ObjectId }],
-    // habits: [{ ref: 'Habit', type: mongoose.Schema.Types.ObjectId }],
-    // reward: [{ ref: 'Reward', type: mongoose.Schema.Types.ObjectId }],
   },
   { _id: true, timestamps: true },
 );

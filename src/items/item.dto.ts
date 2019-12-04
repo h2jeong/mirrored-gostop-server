@@ -7,8 +7,6 @@ class CreateItemDto {
   public category: string;
   @IsNumber()
   public price: number;
-  //   @IsObject()
-  //   public itemImg: object;
 }
 
 export default CreateItemDto;

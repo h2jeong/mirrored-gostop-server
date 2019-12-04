@@ -52,21 +52,18 @@ class GalleriesController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    //const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    // const fileData = files.map(file => file.path);
     const galleryData: CreateGalleryDto = req.body;
     const createdGallery = new this.gallery({
       ...galleryData,
       files: req.files,
       todos: [req.body.todos],
     });
-    // console.log('createdGallery ::', createdGallery, req.body.todos);
     const todo = await this.todo.find({ _id: req.body.todos });
-    // console.log('todo ::', todo);
+
     if (todo.length < 1) {
       next(new NotFoundException(req.body.todos, this.path));
     }
-    console.log('todo ::', todo, todo[0].gallery);
+
     // gallery.length !== 0 경우 처리하기
     todo[0].gallery = [createdGallery._id];
     await todo[0].save();

@@ -30,6 +30,7 @@ class AdminController implements Controller {
     const users = await this.user.find();
     res.send(users);
   };
+
   private getUserById = async (
     req: ReqWithUser,
     res: express.Response,

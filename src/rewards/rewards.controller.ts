@@ -45,6 +45,7 @@ class RewardsController implements Controller {
       .populate('verifiedId', '-password');
     res.send(rewards);
   };
+
   private getRewardById = async (
     req: express.Request,
     res: express.Response,
@@ -57,6 +58,7 @@ class RewardsController implements Controller {
     if (reward) res.send(reward);
     else next(new NotFoundException(id, this.path));
   };
+
   private modifyReward = async (
     req: express.Request,
     res: express.Response,
@@ -70,6 +72,7 @@ class RewardsController implements Controller {
     if (reward) res.send(reward);
     else next(new NotFoundException(id, this.path));
   };
+
   private deleteReward = async (
     req: express.Request,
     res: express.Response,
@@ -80,6 +83,7 @@ class RewardsController implements Controller {
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
   };
+
   private createReward = async (req: ReqWithUser, res: express.Response) => {
     const rewardData: CreateRewardDto = req.body;
     const createdReward = new this.reward({
@@ -88,7 +92,7 @@ class RewardsController implements Controller {
     });
     const savedReward = await createdReward.save();
     await savedReward.populate('verifiedId', '-password').execPopulate();
-    res.send(savedReward);
+    res.send(201);
   };
 }
 

@@ -5,8 +5,6 @@ class CreateRewardDto {
   public title: string;
   @IsString()
   public description: string;
-  // @IsNumber()
-  // public coin: number;
 }
 
 export default CreateRewardDto;

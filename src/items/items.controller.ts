@@ -40,6 +40,7 @@ class ItemsController implements Controller {
     const items = await this.item.find();
     res.send(items);
   };
+
   private getItemById = async (
     req: express.Request,
     res: express.Response,
@@ -53,6 +54,7 @@ class ItemsController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private modifyItem = async (
     req: express.Request,
     res: express.Response,
@@ -72,6 +74,7 @@ class ItemsController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private deleteItem = async (
     req: express.Request,
     res: express.Response,
@@ -83,19 +86,16 @@ class ItemsController implements Controller {
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
   };
+
   private createItem = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const itemData: CreateItemDto = req.body;
-    // console.log('file ::', req.body, req.file);
-    // let payLoad = { url: req.file.location };
-    // const createdItem = new this.item({ ...itemData, itemImg: payLoad });
-
     const createdItem = new this.item(itemData);
     const savedItem = await createdItem.save();
-    res.send(savedItem);
+    res.send(201);
   };
 }
 

@@ -43,6 +43,7 @@ class TodosController implements Controller {
     const todos = await this.todo.find().populate('verifiedId', '-password');
     res.send(todos);
   };
+
   private getTodoById = async (
     req: express.Request,
     res: express.Response,
@@ -59,13 +60,13 @@ class TodosController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private getGallery = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     const id = req.params.id;
-    console.log('getgalltodo::', id);
     const gallery = await this.gallery
       .find({ todos: id })
       .populate('todos', '_id title completed verifiedId');
@@ -81,7 +82,6 @@ class TodosController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    console.log('modifyTodo ::', req.body);
     const id = req.params.id;
     const todoData: Todo = req.body;
     const todo = await this.todo.findByIdAndUpdate(id, todoData, { new: true });
@@ -91,6 +91,7 @@ class TodosController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private deleteTodo = async (
     req: express.Request,
     res: express.Response,
@@ -102,24 +103,17 @@ class TodosController implements Controller {
     if (successResponse) res.send(200);
     else next(new NotFoundException(id, this.path));
   };
+
   private createTodo = async (req: ReqWithUser, res: express.Response) => {
-    console.log('createTodo ::', req.body);
     const todoData: CreateTodoDto = req.body;
     const createdTodo = new this.todo({
       ...todoData,
       verifiedId: req.user._id,
-      // Two-way referencing
-      // verifiedId: [req.user._id]
     });
-    // Two-way referencing
-    /* 
-    const user = await this.user.findById(req.user._id);
-    user.todos = [...user.todos, createTodo._id];
-    await user.save();
-    */
+
     const savedTodo = await createdTodo.save();
     savedTodo.populate('verifiedId', '_id, name').execPopulate();
-    res.send(savedTodo);
+    res.send(201);
   };
 }
 

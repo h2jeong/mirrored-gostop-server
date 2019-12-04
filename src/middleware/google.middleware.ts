@@ -63,7 +63,6 @@ function getGooglePlusApi(auth: any) {
 export function urlGoogle() {
   const auth = createConnection();
   const url = getConnectionUrl(auth);
-  // console.log('google url:: ', auth, url);
   return url;
 }
 

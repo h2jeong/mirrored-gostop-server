@@ -50,10 +50,10 @@ class UserController implements Controller {
     next: express.NextFunction,
   ) => {
     const userId = req.user._id;
-    // console.log('alltodo::', userId);
     const todos = await this.todo.find({ verifiedId: userId });
     res.send({ count: todos.length, user: userId, todos: todos });
   };
+
   private getAllHabitsOfUser = async (
     req: ReqWithUser,
     res: express.Response,
@@ -63,6 +63,7 @@ class UserController implements Controller {
     const habits = await this.habit.find({ verifiedId: userId });
     res.send({ count: habits.length, user: userId, habits: habits });
   };
+
   private getAllRewardsOfUser = async (
     req: ReqWithUser,
     res: express.Response,
@@ -72,6 +73,7 @@ class UserController implements Controller {
     const rewards = await this.reward.find({ verifiedId: userId });
     res.send({ count: rewards.length, user: userId, rewards: rewards });
   };
+
   private getAllOrdersOfUser = async (
     req: ReqWithUser,
     res: express.Response,
@@ -81,6 +83,7 @@ class UserController implements Controller {
     const orders = await this.order.find({ verifiedId: userId });
     res.send({ count: orders.length, user: userId, orders: orders });
   };
+
   private getAllItemsOfUser = async (
     req: ReqWithUser,
     res: express.Response,
@@ -92,6 +95,7 @@ class UserController implements Controller {
       .populate('item', '_id');
     res.send({ count: hasItems.length, user: userId, hasItems: hasItems });
   };
+
   private getInfoOfUser = async (
     req: ReqWithUser,
     res: express.Response,
@@ -102,6 +106,7 @@ class UserController implements Controller {
     if (user) res.send(user);
     else next(new NotFoundException(id, this.path));
   };
+
   private modifyUser = async (
     req: ReqWithUser,
     res: express.Response,
@@ -116,6 +121,7 @@ class UserController implements Controller {
       next(new NotFoundException(id, this.path));
     }
   };
+
   private deleteUser = async (
     req: ReqWithUser,
     res: express.Response,
