@@ -95,7 +95,7 @@ class ItemsController implements Controller {
     const itemData: CreateItemDto = req.body;
     const createdItem = new this.item(itemData);
     const savedItem = await createdItem.save();
-    res.send(201);
+    res.sendStatus(201);
   };
 }
 

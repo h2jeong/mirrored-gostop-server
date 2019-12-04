@@ -113,7 +113,7 @@ class TodosController implements Controller {
 
     const savedTodo = await createdTodo.save();
     savedTodo.populate('verifiedId', '_id, name').execPopulate();
-    res.send(201);
+    res.sendStatus(201);
   };
 }
 

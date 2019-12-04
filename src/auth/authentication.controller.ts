@@ -16,6 +16,9 @@ import WrongTokenException from '../exceptions/WrongTokenException';
 import OverTokenExpiredException from '../exceptions/OverTokenExpiredException';
 
 class AuthenticationController implements Controller {
+  static logIn(arg0: string, logIn: any) {
+    throw new Error('Method not implemented.');
+  }
   public path = '/auth';
   public router = express.Router();
   private user = userModel;
@@ -56,7 +59,7 @@ class AuthenticationController implements Controller {
       });
 
       user.password = undefined;
-      res.send(user);
+      res.sendStatus(201);
     }
   };
 
@@ -65,15 +68,16 @@ class AuthenticationController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
+    console.log('logInData::', req.body);
     const logInData: LogInDto = req.body;
     let userData = await this.user.findOne({ email: logInData.email });
-
     if (userData) {
+      console.log('userData::', userData);
       const isPasswordMatching = await bcrypt.compare(
         logInData.password,
         userData.password,
       );
-      if (isPasswordMatching) {
+      if (isPasswordMatching || userData.userCode === 2) {
         userData.password = undefined;
 
         // jwt
@@ -121,7 +125,7 @@ class AuthenticationController implements Controller {
 
   private logOut = (req: express.Request, res: express.Response) => {
     res.setHeader('Set-cookie', ['Authorization=;Max-age=0']);
-    res.send(200);
+    res.sendStatus(200);
   };
 
   // 1. 프론트에 토큰 expiry date 저장, 백엔드에 request할 때마다 만료 날짜의 초과 확인

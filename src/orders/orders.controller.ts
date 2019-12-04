@@ -103,7 +103,7 @@ class OrdersController implements Controller {
     });
     const savedOrder = await createdOrder.save();
     savedOrder.populate('verifiedId item').execPopulate();
-    res.send(201);
+    res.sendStatus(201);
   };
 }
 

@@ -92,7 +92,7 @@ class HabitsController implements Controller {
     });
     const savedHabit = await createdHabit.save();
     savedHabit.populate('verifiedId').execPopulate();
-    res.send(201);
+    res.sendStatus(201);
   };
 }
 
