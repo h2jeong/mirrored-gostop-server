@@ -77,7 +77,7 @@ class AuthenticationController implements Controller {
         userData.password = undefined;
 
         // jwt
-        const expiresIn = 60 * 60 * 24 * 7;
+        const expiresIn = 60 * 1 * 5 * 1;
         const refreshToken = await jwt.sign(
           { uid: userData._id },
           process.env.REFRESH_SECRET,
@@ -103,7 +103,7 @@ class AuthenticationController implements Controller {
   };
 
   private createToken(user: User) {
-    const expiresIn = 60 * 60 * 1;
+    const expiresIn = 60 * 2 * 1;
     const secret = process.env.JWT_SECRET;
     const dataInToken: DataInToken = {
       _id: user._id,
