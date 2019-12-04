@@ -32,7 +32,7 @@ async function authMiddleware(
         next(new WrongTokenException());
       }
     } catch (error) {
-      console.log('mw catch::', error.message);
+      // console.log('mw catch::', error.message);
       next(new OverTokenExpiredException());
     }
   } else {
