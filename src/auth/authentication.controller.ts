@@ -77,7 +77,7 @@ class AuthenticationController implements Controller {
         logInData.password,
         userData.password,
       );
-      if (isPasswordMatching || userData.userCode === 2) {
+      if (isPasswordMatching) {
         userData.password = undefined;
 
         // jwt

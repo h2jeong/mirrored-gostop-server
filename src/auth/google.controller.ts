@@ -43,7 +43,7 @@ class GoogleController implements Controller {
     try {
       const { code } = req.query;
       const googleUserInfo = await getGoogleAccountFromCode(code);
-      // console.log('무엇이 들어옵니까? googleUser :: ', googleUserInfo);
+      console.log('무엇이 들어옵니까? googleUser :: ', googleUserInfo);
       const userEmail = googleUserInfo.email;
       try {
         let user = await this.user.findOne({ email: userEmail });
