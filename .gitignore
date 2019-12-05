@@ -23,6 +23,7 @@ coverage
 .env
 google.json
 rootkey.csv
+google_key.json
 
 # Dependency directory
 node_modules

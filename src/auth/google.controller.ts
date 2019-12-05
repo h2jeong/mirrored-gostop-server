@@ -1,14 +1,12 @@
 import * as express from 'express';
-import * as jwt from 'jsonwebtoken';
 import Controller from '../interfaces/controller.interface';
 import userModel from '../users/user.model';
-import TokenData from '../interfaces/tokenData.interface';
 import {
   urlGoogle,
   getGoogleAccountFromCode,
 } from '../middleware/google.middleware';
+import authCtrl from './authentication.controller';
 import HttpException from '../exceptions/HttpException';
-import DataInToken from '../interfaces/dataInToken.interface';
 
 class GoogleController implements Controller {
   public path = '/auth';
@@ -21,7 +19,7 @@ class GoogleController implements Controller {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/google`, this.getGoogleUrl);
-    this.router.get(`${this.path}/callback`, this.getGoogleAuth);
+    this.router.get(`${this.path}/google/callback`, this.getGoogleAuth);
   }
 
   private getGoogleUrl = async (
@@ -51,30 +49,18 @@ class GoogleController implements Controller {
             email: userEmail,
             password: '@googleOauth',
             userCode: 3,
-            refreshToken: googleUserInfo.tokens.refresh_token,
           });
         }
-        req.user = user;
-
-        const expiresIn = 60 * 60 * 1;
-        const secret = process.env.JWT_SECRET;
-        const dataInToken: DataInToken = {
-          _id: user._id,
-        };
-        const tokenData: TokenData = {
-          token: jwt.sign(dataInToken, secret, { expiresIn }),
-          expiresIn: googleUserInfo.tokens.expiry_date,
-        };
-
-        console.log('authCtr :: ', user, tokenData);
-        const createCookie = `Authorization=${tokenData.token};HttpOnly;Max-Age=${tokenData.expiresIn}`;
-        res.setHeader('Set-Cookie', [createCookie]);
       } catch (error) {
+        console.log('gg ctlr :: ', error.message);
         next(new HttpException(500, error.message));
       }
-
-      res.redirect(`http://localhost:5000/users/habits`);
+      //req.user = { email: userEmail };
+      //console.log('넘어가나요? ', req.user);
+      //next();
+      res.redirect('/auth/google');
     } catch (error) {
+      console.log('gg catch ::', error.message);
       next(new HttpException(500, error.message));
     }
   };

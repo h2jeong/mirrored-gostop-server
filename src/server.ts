@@ -10,7 +10,7 @@ import GalleryController from './galleries/gallerys.controller';
 import ItemsController from './items/items.controller';
 import OrdersController from './orders/orders.controller';
 import AdminController from './users/admin.controller';
-import GoogleController from './auth/google.controller';
+import GoogleOAuthController from './auth/googleOauth.controller';
 
 validateEnv();
 
@@ -24,7 +24,7 @@ const app = new App([
   new ItemsController(),
   new OrdersController(),
   new AdminController(),
-  new GoogleController(),
+  new GoogleOAuthController(),
 ]);
 
 app.listen();

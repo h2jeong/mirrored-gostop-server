@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
-const googleClient = require('../../google.json');
 const { OAuth2Client } = require('google-auth-library');
+const OAuth2Data = require('../google_key.json');
 // interface OAuthConfig {
 //   baseUrl: string;
 //   clientId: string;
@@ -19,9 +19,9 @@ const { OAuth2Client } = require('google-auth-library');
 /*******************/
 
 const googleConfig = {
-  clientId: googleClient.web.client_id,
-  clientSecret: googleClient.web.client_secret,
-  redirect: googleClient.web.redirect_uris[0],
+  clientId: OAuth2Data.client.id,
+  clientSecret: OAuth2Data.client.secret,
+  redirectUri: OAuth2Data.redirect,
 };
 
 const defaultScope = [
@@ -37,7 +37,7 @@ function createConnection() {
   return new google.auth.OAuth2(
     googleConfig.clientId,
     googleConfig.clientSecret,
-    googleConfig.redirect,
+    googleConfig.redirectUri,
   );
 }
 
