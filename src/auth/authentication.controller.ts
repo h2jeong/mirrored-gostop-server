@@ -59,7 +59,7 @@ class AuthenticationController implements Controller {
       });
 
       user.password = undefined;
-      res.sendStatus(201);
+      res.status(201).send('OK');
     }
   };
 
@@ -68,11 +68,9 @@ class AuthenticationController implements Controller {
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    console.log('logInData::', req.body);
     const logInData: LogInDto = req.body;
     let userData = await this.user.findOne({ email: logInData.email });
     if (userData) {
-      console.log('userData::', userData);
       const isPasswordMatching = await bcrypt.compare(
         logInData.password,
         userData.password,
@@ -125,7 +123,7 @@ class AuthenticationController implements Controller {
 
   private logOut = (req: express.Request, res: express.Response) => {
     res.setHeader('Set-cookie', ['Authorization=;Max-age=0']);
-    res.sendStatus(200);
+    res.status(200).send('OK');
   };
 
   // 1. 프론트에 토큰 expiry date 저장, 백엔드에 request할 때마다 만료 날짜의 초과 확인

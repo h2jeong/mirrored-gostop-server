@@ -87,7 +87,7 @@ class OrdersController implements Controller {
   ) => {
     const id = req.params.id;
     const successResponse = this.order.findByIdAndRemove(id);
-    if (successResponse) res.send(200);
+    if (successResponse) res.status(200).send('OK');
     else next(new NotFoundException(id, this.path));
   };
 
@@ -103,7 +103,7 @@ class OrdersController implements Controller {
     });
     const savedOrder = await createdOrder.save();
     savedOrder.populate('verifiedId item').execPopulate();
-    res.sendStatus(201);
+    res.status(201).send('OK');
   };
 }
 

@@ -100,7 +100,7 @@ class TodosController implements Controller {
     const id = req.params.id;
     const successResponse = await this.todo.findByIdAndDelete(id);
 
-    if (successResponse) res.send(200);
+    if (successResponse) res.status(200).send('OK');
     else next(new NotFoundException(id, this.path));
   };
 
@@ -113,7 +113,7 @@ class TodosController implements Controller {
 
     const savedTodo = await createdTodo.save();
     savedTodo.populate('verifiedId', '_id, name').execPopulate();
-    res.sendStatus(201);
+    res.status(201).send('OK');
   };
 }
 

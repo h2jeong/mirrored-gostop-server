@@ -92,7 +92,7 @@ class RewardsController implements Controller {
     });
     const savedReward = await createdReward.save();
     await savedReward.populate('verifiedId', '-password').execPopulate();
-    res.sendStatus(201);
+    res.status(201).send('OK');
   };
 }
 

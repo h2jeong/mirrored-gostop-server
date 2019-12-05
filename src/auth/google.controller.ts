@@ -19,11 +19,7 @@ class GoogleController implements Controller {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/google`, this.getGoogleUrl);
-    this.router.get(
-      `${this.path}/callback`,
-      this.getGoogleAuth,
-      authCtrl.logIn,
-    );
+    this.router.get(`${this.path}/google/callback`, this.getGoogleAuth);
   }
 
   private getGoogleUrl = async (
@@ -59,9 +55,10 @@ class GoogleController implements Controller {
         console.log('gg ctlr :: ', error.message);
         next(new HttpException(500, error.message));
       }
-      req.user = { email: userEmail };
-      console.log('넘어가나요? ', req.user);
-      next();
+      //req.user = { email: userEmail };
+      //console.log('넘어가나요? ', req.user);
+      //next();
+      res.redirect('/auth/google');
     } catch (error) {
       console.log('gg catch ::', error.message);
       next(new HttpException(500, error.message));
