@@ -43,7 +43,7 @@ class OrdersController implements Controller {
   ) => {
     const orders = await this.order
       .find()
-      .populate('verifiedId item', '_id name price');
+      .populate('verifiedId item', '_id name price itemImg');
     res.send(orders);
   };
 
