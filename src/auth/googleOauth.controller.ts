@@ -1,6 +1,7 @@
 import * as express from 'express';
 import Controller from '../interfaces/controller.interface';
 import { google } from 'googleapis';
+import authCtrl from './authentication.controller';
 const OAuth2Data = require('../google_key.json');
 
 class GoogleOAuthController implements Controller {
@@ -23,7 +24,11 @@ class GoogleOAuthController implements Controller {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/google`, this.getGoogleUrl);
-    this.router.get(`${this.path}/google/callback`, this.getGoogleAuth);
+    this.router.get(
+      `${this.path}/google/callback`,
+      this.getGoogleAuth,
+      authCtrl.logIn,
+    );
   }
 
   private getGoogleUrl = async (
@@ -57,6 +62,7 @@ class GoogleOAuthController implements Controller {
           }
         },
       );
+
       res.send('Logged in');
     }
   };

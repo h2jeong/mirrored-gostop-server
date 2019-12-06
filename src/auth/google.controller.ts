@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as jwt from 'jsonwebtoken';
 import Controller from '../interfaces/controller.interface';
 import userModel from '../users/user.model';
 import {
@@ -7,6 +8,7 @@ import {
 } from '../middleware/google.middleware';
 import authCtrl from './authentication.controller';
 import HttpException from '../exceptions/HttpException';
+import TokenData from '../interfaces/tokenData.interface';
 
 class GoogleController implements Controller {
   public path = '/auth';
@@ -19,7 +21,11 @@ class GoogleController implements Controller {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/google`, this.getGoogleUrl);
-    this.router.get(`${this.path}/google/callback`, this.getGoogleAuth);
+    this.router.get(
+      `${this.path}/google/callback`,
+      this.getGoogleUserInfo,
+      authCtrl.logIn,
+    );
   }
 
   private getGoogleUrl = async (
@@ -31,38 +37,36 @@ class GoogleController implements Controller {
     res.redirect(url);
   };
 
-  private getGoogleAuth = async (
+  private getGoogleUserInfo = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
+    const { code } = req.query;
     try {
-      const { code } = req.query;
       const googleUserInfo = await getGoogleAccountFromCode(code);
       console.log('무엇이 들어옵니까? googleUser :: ', googleUserInfo);
       const userEmail = googleUserInfo.email;
-      try {
-        let user = await this.user.findOne({ email: userEmail });
-        if (!user) {
-          user = await this.user.create({
-            name: 'googleUser',
-            email: userEmail,
-            password: '@googleOauth',
-            userCode: 3,
-          });
-        }
-      } catch (error) {
-        console.log('gg ctlr :: ', error.message);
-        next(new HttpException(500, error.message));
+
+      let user = await this.user.findOne({ email: userEmail });
+      if (!user) {
+        user = await this.user.create({
+          name: googleUserInfo.id,
+          email: userEmail,
+          password: '@googleOauth',
+          userCode: 3,
+        });
       }
-      //req.user = { email: userEmail };
-      //console.log('넘어가나요? ', req.user);
-      //next();
-      res.redirect('/auth/google');
+      req.body = user;
+      next();
     } catch (error) {
-      console.log('gg catch ::', error.message);
-      next(new HttpException(500, error.message));
+      console.log('gg ctlr :: login failed', error.message);
+      res.redirect('/auth/google');
     }
+    //req.user = { email: userEmail, password: '@googleOauth' };
+    //console.log('넘어가나요? ', req.user);
+    //next();
+    //res.redirect('/auth/google');
   };
 }
 
