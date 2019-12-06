@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as jwt from 'jsonwebtoken';
 import Controller from '../interfaces/controller.interface';
 import userModel from '../users/user.model';
 import {
@@ -7,8 +6,6 @@ import {
   getGoogleAccountFromCode,
 } from '../middleware/google.middleware';
 import authCtrl from './authentication.controller';
-import HttpException from '../exceptions/HttpException';
-import TokenData from '../interfaces/tokenData.interface';
 
 class GoogleController implements Controller {
   public path = '/auth';

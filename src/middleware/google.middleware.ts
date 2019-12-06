@@ -1,19 +1,6 @@
 import { google } from 'googleapis';
-import HttpException from 'exceptions/HttpException';
 const { OAuth2Client } = require('google-auth-library');
 const googleClient = require('../../google.json');
-// interface OAuthConfig {
-//   baseUrl: string;
-//   clientId: string;
-//   clientSecret?: string;
-//   redirect?: string;
-//   grantPath?: string;
-//   revokePath?: string;
-// }
-
-// interface OAuthProvider {
-//     configure(params: OAuthConfig): OAuthConfig;
-// }
 
 /*******************/
 /** CONFIGURATION **/
@@ -81,9 +68,7 @@ export async function getGoogleAccountFromCode(code: any) {
   const client = new OAuth2Client(googleConfig.clientId);
   const ticket = await client.verifyIdToken({
     idToken: id_Token,
-    audience: googleConfig.clientId, // Specify the CLIENT_ID of the app that accesses the backend
-    // Or, if multiple clients access the backend:
-    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    audience: googleConfig.clientId,
   });
   const payload = ticket.getPayload();
   const id = payload['sub'];
