@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
+import HttpException from 'exceptions/HttpException';
 const { OAuth2Client } = require('google-auth-library');
-const OAuth2Data = require('../google_key.json');
+const googleClient = require('../../google.json');
 // interface OAuthConfig {
 //   baseUrl: string;
 //   clientId: string;
@@ -19,9 +20,9 @@ const OAuth2Data = require('../google_key.json');
 /*******************/
 
 const googleConfig = {
-  clientId: OAuth2Data.client.id,
-  clientSecret: OAuth2Data.client.secret,
-  redirectUri: OAuth2Data.redirect,
+  clientId: googleClient.web.client_id,
+  clientSecret: googleClient.web.client_secret,
+  redirect: googleClient.web.redirect_uris[0],
 };
 
 const defaultScope = [
@@ -37,7 +38,7 @@ function createConnection() {
   return new google.auth.OAuth2(
     googleConfig.clientId,
     googleConfig.clientSecret,
-    googleConfig.redirectUri,
+    googleConfig.redirect,
   );
 }
 
@@ -89,7 +90,7 @@ export async function getGoogleAccountFromCode(code: any) {
   const email = payload['email'];
 
   return {
-    tokens: tokens,
+    // tokens: tokens,
     id: id,
     email: email,
   };
