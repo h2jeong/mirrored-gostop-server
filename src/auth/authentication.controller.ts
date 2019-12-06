@@ -126,13 +126,6 @@ class AuthenticationController implements Controller {
     res.status(200).send('OK');
   };
 
-  // 1. 프론트에 토큰 expiry date 저장, 백엔드에 request할 때마다 만료 날짜의 초과 확인
-  // 2. 만료된 경우 refresh token 요청
-  // 3. 백엔드는 refresh token 엔드포인트를 만들고 acees-token/refresh-token 모두 보내준다.
-  // 4. access-token 으로 필요한 데이터를 얻는다. (만료 날짜 고려하지 말고)
-  // 5. refresh-token과 디비의 최신 refresh-token 비교하여 일치하지 않을 경우 유저는 인증되지 않았고 그렇지 않으면 계속 고고
-  // 6. 토큰이 유효하면 디비를 쿼리하지 않고 access-token을 새 토큰으로 만들고 아닐 경우 쿼리 하고 access-token을 다시 만든다.
-
   private refresh = async (
     req: ReqWithUser,
     res: express.Response,
