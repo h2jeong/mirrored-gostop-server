@@ -17,11 +17,14 @@ LEVEL UP
 2. HABITS & TODOS
 만들고 싶은 습관 / 없애고 싶은 습관
 기간별로 해야 할 일들
+
 ![habitsTodos.gif](./image/habitsTodos.gif)
+
 
 
 3. REWARDS
 스스로에게 주는 보상
+
 ![rewards.gif](./image/rewards.gif)
 
 4. ITEMS
