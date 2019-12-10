@@ -1,5 +1,5 @@
 # Go?!Stop?!
-==========  
+ 
   
 > 기존 Todo 앱 + 캐릭터 키우기 기능 = 생활관리앱
 > Stacks : Nodejs, Express, Typescript, multer, MongoDB, Mongoose, JWT(refresh token), AWS S3/EC2
@@ -36,7 +36,8 @@
 - 획득한 코인으로 아이템 구입
 - 캐릭터 꾸미기
   
-![Character.gif](./image/Character.gif)![Itemshop.gif](./image/Itemshop.gif)
+![Character.gif](./image/Character.gif)  
+![Itemshop.gif](./image/Itemshop.gif)
   
   
 ***  
