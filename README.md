@@ -14,6 +14,7 @@
 
 내 인생은 경험치가 오르고 레벨업 되고 있는 게 눈에 보이지 않아!  
    
+**본 어플리케이션의 모든 캐릭터는 [나의 최애캐_오빠돌]의 디자인입니다.     
   
 ### 1. USER
 - LEVEL UP
@@ -36,8 +37,7 @@
 - 획득한 코인으로 아이템 구입
 - 캐릭터 꾸미기
   
-![Character.gif](./image/Character.gif)  
-![Itemshop.gif](./image/Itemshop.gif)
+![Character.gif](./image/Character.gif)  ![Itemshop.gif](./image/Itemshop.gif)
   
   
 ***  
