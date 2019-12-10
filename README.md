@@ -1,4 +1,4 @@
-Go?!Stop?!
+#Go?!Stop?!
 
 - 기존 Todo 앱 + 캐릭터 키우기 기능 = 생활관리앱
 - Stacks : Nodejs, Express, Typescript, multer, MongoDB, Mongoose, JWT(refresh token), AWS S3/EC2
